@@ -1,3 +1,5 @@
+> **Vitrine actuelle : Cœur de Mielles, par JINORIA.** Un atelier de design dont les recherches donnent naissance à quatre collections joaillières au sein de JINORIA. Navigation : Collections, Bijoux, L’atelier de design, Contact. Le footer réunit le contact, la sélection, JINORIA, la confidentialité et l’espace professionnel. Le site externe est `https://jinoria.com/` (surcharge possible par `VITE_JINORIA_URL`). Le contact prépare un message ; l’envoi direct par messagerie nécessite `VITE_CONTACT_EMAIL`. Voir `research/showroom-architecture.md`.
+
 # Atelier ? collections et suivi de fabrication
 
 ## Version locale actuelle ? 6 novembre 2026
@@ -86,3 +88,21 @@ Les propositions d’opérations et de contrôles sont facultatives et modifiabl
 L’administrateur édite la définition technique ; les intervenants affectés la consultent et remplissent la production. Les clients n’accèdent à aucun de ces deux onglets. Ces comportements restent des aperçus locaux, sans authentification distante. Les données techniques sont conservées avec la pièce et incluses dans l’export JSON du suivi.
 
 Le bouton **Imprimer / PDF** ouvre l’impression navigateur de la fiche active au format A4, sans navigation. Selon le nombre de composants/opérations, la fiche peut occuper plusieurs pages. Les champs laissés vides ne sont pas des valeurs de production validées.
+
+## Vitrine JINORIA · Cœur des Mielles
+
+La page d’accueil publique `/` présente désormais **Cœur des Mielles, par JINORIA** : signature créative de la maison, déclinée en univers Rivages, Galets et Horizon. Direction visuelle ivoire, sable, or chaud et couleurs marines ; visuels optimisés à partir des références du projet.
+
+Routes : `/coeur-des-mielles`, `/creations`, `/collections/rivages`, `/collections/galets`, `/collections/horizon`, `/creations/:id`, `/la-maison`, `/selection`. Les réécritures Vercel permettent de recharger ces pages directement. Le catalogue public est défini dans `src/showroom/catalog.js` et contient uniquement les données de présentation sélectionnées. Il n’importe aucune fiche technique, aucun suivi ni fichier privé de l’atelier. La publication automatique depuis l’atelier/Supabase n’est pas encore branchée à ce catalogue.
+
+L’espace professionnel est accessible sur `/atelier`. En développement sans Supabase, il ouvre l’atelier local ; en production, il demande une connexion. Les liens de connexion et d’invitation utilisent désormais cette route. Conserver `https://votre-domaine/atelier` dans les redirections autorisées de Supabase Auth. Les anciens liens de partage `/#<token>` restent reconnus.
+
+La vitrine comprend recherche, filtres, fiches produits, agrandissement des images et sélection de favoris locale. Les textes de caractéristiques ne constituent pas des fiches de fabrication validées ; titres, prix, dimensions et disponibilité ne sont pas inventés.
+
+Contact : renseigner éventuellement `VITE_CONTACT_EMAIL`, puis reconstruire. Le formulaire prépare un message copiable et, si l’adresse est configurée, propose de l’ouvrir dans la messagerie. Aucun message n’est envoyé par un backend ; aucun envoi réussi n’est simulé. Sans adresse configurée, le brouillon reste consultable et copiable. Aucun achat en ligne n’est activé.
+
+### Classement des créations
+
+La signature Cœur des Mielles est structurée en trois collections : Rivages (mouvement, vagues et entrelacs), Galets (volumes doux et assemblages), Horizon (lignes et dégradés de couleur). Chaque bijou possède une seule collection principale et un type indépendant : Bagues, Bracelets, Colliers & pendentifs ou Boucles d’oreilles. Joncs et bracelets sur cordon restent des sous-types de bracelets, pas des collections.
+
+Les pages `/collections` et `/bijoux` proposent ces deux entrées. Les pages `/collections/:id` se filtrent par type ; `/bijoux/:id` se filtre par collection. Les trois collections sont présentées à égalité sur l’accueil. La bague Blainville est conservée en réserve dans le catalogue source et n’est plus proposée publiquement.

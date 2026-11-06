@@ -7,7 +7,7 @@ export default async function handler(req,res){
  if(req.method==='DELETE'){const {error}=await c.from('atelier_members').delete().eq('email',email);if(error)throw error;return res.status(200).json({ok:true});}
  if(req.method==='POST'){
   const {error}=await c.from('atelier_members').upsert({email},{onConflict:'email'});if(error)throw error;
-  const invited=await c.auth.admin.inviteUserByEmail(email,{redirectTo:process.env.PUBLIC_PORTAL_URL});
+  const invited=await c.auth.admin.inviteUserByEmail(email,{redirectTo:process.env.PUBLIC_PORTAL_URL?new URL('/atelier',process.env.PUBLIC_PORTAL_URL).href:undefined});
   return res.status(200).json({ok:true,warning:invited.error?'Accès autorisé. L’invitation n’a pas été envoyée : vérifier la messagerie ou demander à la personne déjà inscrite de se connecter.':null});
  }
  return res.status(405).json({error:'Méthode non autorisée'});

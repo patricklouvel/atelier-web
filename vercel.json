@@ -29,5 +29,87 @@
     "api/*.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/atelier",
+      "destination": "/"
+    },
+    {
+      "source": "/atelier/:path*",
+      "destination": "/"
+    },
+    {
+      "source": "/coeur-des-mielles",
+      "destination": "/"
+    },
+    {
+      "source": "/creations",
+      "destination": "/"
+    },
+    {
+      "source": "/creations/:path*",
+      "destination": "/"
+    },
+    {
+      "source": "/collections/:path*",
+      "destination": "/"
+    },
+    {
+      "source": "/la-maison",
+      "destination": "/"
+    },
+    {
+      "source": "/selection",
+      "destination": "/"
+    },
+    {
+      "source": "/collections",
+      "destination": "/"
+    },
+    {
+      "source": "/bijoux",
+      "destination": "/"
+    },
+    {
+      "source": "/bijoux/:path*",
+      "destination": "/"
+    },
+    {
+      "source": "/coeur-de-mielles",
+      "destination": "/"
+    },
+    {
+      "source": "/la-marque",
+      "destination": "/"
+    },
+    {
+      "source": "/le-groupe",
+      "destination": "/"
+    },
+    {
+      "source": "/jinoria",
+      "destination": "/"
+    },
+    {
+      "source": "/atelier-de-design",
+      "destination": "/"
+    },
+    {
+      "source": "/confidentialite",
+      "destination": "/"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/coeur-des-mielles",
+      "destination": "/coeur-de-mielles",
+      "permanent": true
+    },
+    {
+      "source": "/le-groupe",
+      "destination": "/jinoria",
+      "permanent": true
+    }
+  ]
 }
