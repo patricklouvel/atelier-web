@@ -106,3 +106,14 @@ Contact : renseigner éventuellement `VITE_CONTACT_EMAIL`, puis reconstruire. Le
 La signature Cœur des Mielles est structurée en trois collections : Rivages (mouvement, vagues et entrelacs), Galets (volumes doux et assemblages), Horizon (lignes et dégradés de couleur). Chaque bijou possède une seule collection principale et un type indépendant : Bagues, Bracelets, Colliers & pendentifs ou Boucles d’oreilles. Joncs et bracelets sur cordon restent des sous-types de bracelets, pas des collections.
 
 Les pages `/collections` et `/bijoux` proposent ces deux entrées. Les pages `/collections/:id` se filtrent par type ; `/bijoux/:id` se filtre par collection. Les trois collections sont présentées à égalité sur l’accueil. La bague Blainville est conservée en réserve dans le catalogue source et n’est plus proposée publiquement.
+
+
+## Connexion Supabase avec l’intégration Vercel
+
+Le build reconnaît directement SUPABASE_URL et SUPABASE_PUBLISHABLE_KEY (ou leurs alias NEXT_PUBLIC_). Les API utilisent SUPABASE_SECRET_KEY. Il n’est pas nécessaire de dupliquer ces variables avec un préfixe VITE_. Les anciennes clés anon/service_role restent compatibles. Après une modification des variables, reconstruire et redéployer le site.
+
+Dans Supabase Auth → URL Configuration, autoriser l’adresse exacte du portail professionnel, par exemple https://atelier-web-blue.vercel.app/atelier. Le retour du lien de connexion vise /atelier. Le compte doit avoir été invité et son adresse doit être autorisée dans atelier_members ; l’intégration d’hébergement ne crée ni ces autorisations ni le bucket privé. Exécuter setup.sql pour préparer la table et le stockage si ce n’est pas déjà fait.
+
+La clé ATELIER_PUBLISH_KEY sert aux opérations de publication et d’invitation depuis l’application propriétaire. Son absence ne bloque plus la consultation authentifiée de la galerie ; elle continue de bloquer les opérations de publication.
+
+La nouvelle interface de suivi avec Kanban reste pour le moment l’atelier local de développement ; la production utilise encore la galerie privée authentifiée. La correction de configuration ne transforme pas ce suivi local en service multiutilisateur.

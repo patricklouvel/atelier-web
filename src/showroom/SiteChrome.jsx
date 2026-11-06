@@ -19,8 +19,8 @@ export function SiteHeader({ path, go, menu, setMenu, openSearch, savedCount, re
         <span className="sr-brand-signature"><em>par</em> JINORIA</span>
       </Link>
       <div className="sr-header-tools">
-        <button className="sr-icon" aria-label="Rechercher une création" onClick={openSearch}><Search size={20} strokeWidth={1.4}/></button>
-        <Link to="/selection" go={go} className="sr-icon" aria-label={`Ma sélection, ${savedCount} création(s)`}>
+        <button className="sr-icon" aria-label="Rechercher un bijou" onClick={openSearch}><Search size={20} strokeWidth={1.4}/></button>
+        <Link to="/selection" go={go} className="sr-icon" aria-label={`Ma sélection, ${savedCount} bijou(x)`}>
           <Heart size={20} strokeWidth={1.4}/>{savedCount > 0 && <span className="sr-count">{savedCount}</span>}
         </Link>
       </div>

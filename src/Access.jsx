@@ -1,8 +1,9 @@
 ﻿import React,{useEffect,useState} from 'react';
 import {createClient} from '@supabase/supabase-js';
 import {LockKeyhole,ArrowRight} from 'lucide-react';
-const configured=import.meta.env.VITE_SUPABASE_URL&&import.meta.env.VITE_SUPABASE_ANON_KEY;
-export const auth=configured?createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_ANON_KEY,{auth:{storage:window.sessionStorage,storageKey:'atelier.auth',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
+const publicKey=import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const configured=Boolean(import.meta.env.VITE_SUPABASE_URL&&publicKey);
+export const auth=configured?createClient(import.meta.env.VITE_SUPABASE_URL,publicKey,{auth:{storage:window.sessionStorage,storageKey:'atelier.auth',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
 export default function Access({children}){
  const [session,setSession]=useState(null),[loading,setLoading]=useState(true),[email,setEmail]=useState(''),[message,setMessage]=useState(''),[sending,setSending]=useState(false);
  useEffect(()=>{if(!auth){setLoading(false);return;}auth.auth.getSession().then(({data})=>{setSession(data.session);setLoading(false);});const {data}=auth.auth.onAuthStateChange((_event,s)=>{setSession(s);setLoading(false);});return()=>data.subscription.unsubscribe();},[]);

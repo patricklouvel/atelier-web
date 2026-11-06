@@ -2,18 +2,18 @@
 
 ## Identité et contenu
 
-Cœur de Mielles est un atelier de design. Ses recherches donnent naissance aux collections joaillières au sein de JINORIA. La signature publique est « par JINORIA ». Le site JINORIA présente ses propres créations, le sur-mesure et les pierres.
+Cœur de Mielles est un atelier de design et fait partie de l’univers JINORIA. La relation se présente comme une appartenance à cet univers, sans discours de sous-traitance ni argument de fabrication. La signature publique est « par JINORIA ». Le site JINORIA présente ses propres créations, le sur-mesure et les pierres.
 
 Le classement repose sur les formes : Rivages (vagues et entrelacs), Galets (volumes arrondis), Horizon (structures géométriques), Mielles (reliefs et strates). Le type de bijou constitue un second axe indépendant.
 
 ## Parcours et pages
 
-- `/` : dessin des bijoux, quatre collections, créations représentatives, lien vers l’atelier de design.
+- `/` : image de collection Rivages, quatre collections, puis accès aux bijoux par type avec un visuel porté. Aucun second catalogue de produits sur l’accueil.
 - `/collections` : présenter les différences entre les collections et accéder à leurs pièces.
 - `/collections/:id` : pièces d’une collection, filtrables par type.
-- `/bijoux` et `/bijoux/:id` : entrer par type, puis filtrer par collection.
+- `/bijoux` : tous les bijoux, avec filtres par type et collection ; `/bijoux/:id` : un type de bijou.
 - `/creations/:id` : visuel du bijou, dessin, matières, finitions, inspiration, sélection et demande. Les suggestions appartiennent à la même collection.
-- `/atelier-de-design` : origine des recherches et rôle respectif de Cœur de Mielles et JINORIA.
+- `/atelier-de-design` : origine des recherches et appartenance à l’univers JINORIA.
 - `/selection` : retrouver les pièces conservées dans ce navigateur pour préparer un échange.
 - `/confidentialite` : expliquer concrètement la sélection locale, les messages préparés et les liens externes.
 - `/atelier` : portail professionnel distinct de la vitrine.
@@ -29,7 +29,7 @@ Deux concepts Image Gen ont servi à fixer le premier écran et le footer. Écar
 ## Responsabilités frontend
 
 - `SiteChrome.jsx` : navigation et footer communs.
-- `HomePage.jsx` : composition de l’accueil.
+- `HomePage.jsx` et `home.css` : accueil éditorial, sans règles partagées avec les sous-pages.
 - `EditorialPages.jsx` : atelier et confidentialité.
 - `navigation.jsx` : liens internes et destination JINORIA.
 - `catalog.js` / `taxonomy.js` : contenu et classement.

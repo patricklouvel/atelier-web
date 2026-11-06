@@ -1,5 +1,6 @@
 import {createClient} from '@supabase/supabase-js';
 import{authorize}from'../lib/auth.js';
+import {serverSupabaseConfig} from '../lib/supabase-config.js';
 import {randomBytes,timingSafeEqual} from 'node:crypto';
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const text=(v,n)=>{if(typeof v!=='string'||v.length>n)throw fail('Texte invalide');return v.trim();};
@@ -53,10 +54,12 @@ export function createHandler(storage,secret,checkAccess=authorize){return async
  }catch(e){res.status(e.status||503).json({error:e.status?e.message:'Service de stockage indisponible'});}
 };}
 export default async function handler(req,res){
- const {SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,ATELIER_PUBLISH_KEY,SUPABASE_BUCKET='atelier-private'}=process.env;
- if(!SUPABASE_URL||!SUPABASE_SERVICE_ROLE_KEY||(!ATELIER_PUBLISH_KEY||ATELIER_PUBLISH_KEY.length<32))return res.status(503).json({error:'Stockage non configuré'});
- const client=createClient(SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
- const bucket=await client.storage.getBucket(SUPABASE_BUCKET);if(bucket.error||bucket.data.public)return res.status(503).json({error:'Le stockage doit être privé.'});
- return createHandler(client.storage.from(SUPABASE_BUCKET),ATELIER_PUBLISH_KEY,r=>authorize(r,client))(req,res);
+ const config=serverSupabaseConfig(process.env),secret=process.env.ATELIER_PUBLISH_KEY;
+ if(!config.url||!config.key)return res.status(503).json({error:'Stockage non configuré'});
+ const reading=req.method==='GET'&&['read','index'].includes(req.query.action);
+ if(!reading&&(!secret||secret.length<32))return res.status(503).json({error:'Publication non configurée'});
+ const client=createClient(config.url,config.key,{auth:{persistSession:false,autoRefreshToken:false}});
+ const bucket=await client.storage.getBucket(config.bucket);if(bucket.error||bucket.data.public)return res.status(503).json({error:'Le stockage doit être privé.'});
+ return createHandler(client.storage.from(config.bucket),secret,r=>authorize(r,client))(req,res);
 }
 

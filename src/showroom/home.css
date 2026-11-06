@@ -1,0 +1,56 @@
+/* Home only. Catalogue and editorial subpages keep their existing layout. */
+.sr-home-campaign { margin: 18px 24px 0; }
+.sr-home-campaign-photo { width: 100%; aspect-ratio: 2.2; max-height: 640px; overflow: hidden; background: var(--sand); }
+.sr-home-campaign-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 58%; }
+.sr-home-campaign-caption { display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; gap: 28px; padding: 24px 28px 27px; }
+.showroom-root .sr-home-campaign h1 { font-size: clamp(40px, 4vw, 60px); line-height: 1; letter-spacing: -1.5px; }
+.sr-home-campaign-caption p { text-align: center; font-size: 15px; }
+.sr-home-campaign-caption .sr-text-link { justify-self: end; white-space: nowrap; }
+.sr-home-collections { padding: 66px var(--page-gutter) 88px; }
+.sr-home-section-heading { margin-bottom: 34px; }
+.showroom-root .sr-home-section-heading h2 { font-size: clamp(34px, 3.2vw, 48px); letter-spacing: -1px; line-height: 1.15; }
+.sr-home-section-heading>p { margin-top: 14px; font-size: 16px; color: var(--body-copy); }
+.sr-home-collection-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.sr-home-collection { min-width: 0; }
+.sr-home-collection>div { aspect-ratio: .95; overflow: hidden; background: var(--sand); }
+.sr-home-collection img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+.sr-home-collection:hover img { transform: scale(1.025); }
+.showroom-root .sr-home-collection h3 { font-size: 30px; margin: 20px 0 10px; line-height: 1.15; }
+.sr-home-collection p { font-size: 13px; color: var(--body-copy); line-height: 1.65; }
+.sr-home-types { display: grid; grid-template-columns: 1fr 1fr; margin: 0 var(--page-gutter) 88px; align-items: stretch; }
+.sr-home-types-photo { min-width: 0; min-height: 560px; background: var(--sand); position: relative; overflow: hidden; }
+.sr-home-types-photo img { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 65% 50%; }
+.sr-home-types-content { align-self: center; padding: 35px 0 35px 15%; }
+.showroom-root .sr-home-types h2 { font-size: clamp(38px, 3.5vw, 52px); letter-spacing: -1.2px; margin-bottom: 36px; line-height: 1.15; }
+.sr-home-types nav { display: flex; flex-direction: column; }
+.sr-home-types nav a { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 20px 0; border-bottom: 1px solid #bfb8aa; font-family: Georgia, serif; font-size: clamp(22px, 2.2vw, 32px); line-height: 1.35; }
+.sr-home-types nav a:hover { color: #8e7959; }
+@media (max-width: 1050px) {
+  .sr-home-campaign-caption { grid-template-columns: 1fr 1fr; }
+  .sr-home-campaign-caption p { grid-column: 1; grid-row: 2; text-align: left; }
+  .sr-home-campaign-caption .sr-text-link { grid-column: 2; grid-row: 1 / 3; }
+  .sr-home-collection-grid { gap: 20px; }
+  .sr-home-types-photo { min-height: 460px; }
+  .sr-home-types-content { padding-left: 10%; }
+}
+@media (max-width: 760px) {
+  .sr-home-campaign { margin: 8px 0 0; }
+  .sr-home-campaign-photo { aspect-ratio: 3 / 2; }
+  .sr-home-campaign-photo img { object-fit: contain; }
+  .sr-home-campaign-caption { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 25px var(--page-gutter) 30px; border-bottom: 1px solid var(--line); }
+  .showroom-root .sr-home-campaign h1 { font-size: 43px; }
+  .sr-home-campaign-caption p { font-size: 14px; }
+  .sr-home-campaign-caption .sr-text-link { margin-top: 3px; }
+  .sr-home-collections { padding-top: 40px; padding-bottom: 44px; }
+  .sr-home-section-heading { margin-bottom: 26px; }
+  .showroom-root .sr-home-section-heading h2 { font-size: 34px; }
+  .sr-home-section-heading>p { font-size: 14px; margin-top: 12px; }
+  .sr-home-collection-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 16px; }
+  .showroom-root .sr-home-collection h3 { font-size: 26px; margin: 15px 0 9px; }
+  .sr-home-collection p { font-size: 12px; }
+  .sr-home-types { grid-template-columns: 1fr; margin: 0 var(--page-gutter) 44px; }
+  .sr-home-types-photo { min-height: 0; aspect-ratio: 1; }
+  .sr-home-types-content { padding: 30px 0 0; }
+  .showroom-root .sr-home-types h2 { font-size: 36px; margin-bottom: 15px; }
+  .sr-home-types nav a { font-size: 25px; padding: 18px 0; gap: 15px; }
+}
