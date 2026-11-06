@@ -1,3 +1,25 @@
+## Connexion professionnelle actuelle — mot de passe et invitations
+
+La connexion quotidienne se fait avec l’adresse e-mail et le mot de passe. Il n’y a aucun formulaire public d’inscription et aucun envoi de lien magique pour se connecter. L’invitation sert à activer le compte et à définir le premier mot de passe ; « Mot de passe oublié » conserve le parcours de récupération standard. Les anciens paragraphes sur la connexion par lien ci-dessous sont historiques.
+
+1. Exécuter la version actuelle de setup.sql dans Supabase SQL Editor. Elle migre les membres existants vers le rôle guest, conserve les fichiers et ajoute les droits par projet.
+2. Pour le premier administrateur uniquement, exécuter l’instruction de création/promotion commentée à la fin du script avec son adresse réelle. Aucun utilisateur n’est promu automatiquement depuis le navigateur.
+3. Dans Supabase Auth, activer le fournisseur e-mail et désactiver « Allow new users to sign up ». Configurer le SMTP pour les invitations et la récupération destinées à l’équipe.
+4. Site URL : https://votre-domaine/atelier. Redirect URLs : https://votre-domaine/atelier/activer et https://votre-domaine/atelier/reinitialiser. PUBLIC_PORTAL_URL doit correspondre au domaine utilisé. Ne pas réutiliser une ancienne invitation expirée.
+5. Après connexion avec le compte admin : « Accès et invitations » permet d’inviter, choisir les rôles, retirer un accès, affecter les projets et définir la visibilité de chaque fichier.
+
+| Rôle | Autorisations |
+| --- | --- |
+| admin | Tous les projets/fichiers, publication, comptes, rôles et partages |
+| participant | Projets affectés ; fichiers team et client |
+| guest | Projets affectés ; fichiers client uniquement |
+
+Les rôles proviennent uniquement de atelier_members, jamais des métadonnées modifiables du compte. L’API filtre les projets et les fichiers avant de créer les liens de téléchargement. Les tables et le stockage privé ne sont pas accessibles directement aux rôles navigateur. Le dernier administrateur est protégé ; l’API interdit aussi de retirer son propre compte admin. Les anciens fichiers sans visibilité sont considérés team et ne sont pas ouverts aux invités. Les liens de fichiers déjà signés expirent après 60 secondes.
+
+Le suivi complet et le Kanban restent pour l’instant locaux : ces modifications concernent les comptes, l’administration des accès et les fichiers de la galerie en ligne.
+
+---
+
 > **Vitrine actuelle : Cœur de Mielles, par JINORIA.** Un atelier de design dont les recherches donnent naissance à quatre collections joaillières au sein de JINORIA. Navigation : Collections, Bijoux, L’atelier de design, Contact. Le footer réunit le contact, la sélection, JINORIA, la confidentialité et l’espace professionnel. Le site externe est `https://jinoria.com/` (surcharge possible par `VITE_JINORIA_URL`). Le contact prépare un message ; l’envoi direct par messagerie nécessite `VITE_CONTACT_EMAIL`. Voir `research/showroom-architecture.md`.
 
 # Atelier ? collections et suivi de fabrication
