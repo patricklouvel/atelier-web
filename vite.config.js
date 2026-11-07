@@ -1,6 +1,7 @@
 ﻿import {defineConfig, loadEnv} from 'vite';
 import portal from './api/portal.js';
 import access from './api/access.js';
+import workshop from './api/workshop.js';
 import {devApiMiddleware} from './lib/dev-api.js';
 import {publicSupabaseConfig} from './lib/supabase-config.js';
 export default defineConfig(({mode}) => {
@@ -14,6 +15,6 @@ export default defineConfig(({mode}) => {
   'import.meta.env.VITE_SUPABASE_URL':JSON.stringify(publicConfig.url),
   'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY':JSON.stringify(publicConfig.key),
  },server:{strictPort:true}, plugins:[{name:'atelier-local-api',configureServer(server){
-  server.middlewares.use(devApiMiddleware({'/api/portal':portal,'/api/access':access}));
+  server.middlewares.use(devApiMiddleware({'/api/portal':portal,'/api/access':access,'/api/workshop':workshop}));
  }}],build:{chunkSizeWarningLimit:700}};
 });

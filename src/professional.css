@@ -34,4 +34,16 @@
 .member-management .sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .login>.text-button{margin-top:20px}
 .login form>small{display:block;color:#a9abad;margin:8px 0 20px}
+.cloud-toolbar{padding:14px 25px;background:#222426;border-bottom:1px solid #414039;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.cloud-toolbar>span{font-size:12px;color:#d3bc95;flex:1;min-width:160px}
+.cloud-toolbar>div{display:flex;gap:10px;flex-wrap:wrap}
+.cloud-toolbar>p{width:100%;margin:0;font-size:12px}
+.cloud-content{border:0;padding:0;margin:0;min-width:0}
+.cloud-content:disabled{opacity:.7}
+.ws-collection-edit{margin-top:25px;max-width:700px}
+.ws-collection-edit summary{cursor:pointer;margin-bottom:12px}
+[hidden]{display:none!important}
+@media(min-width:1360px){.cloud-content .ws-column{flex:1 0 130px;min-width:0;padding:10px}.cloud-content .ws-column h2{font-size:11px}.cloud-content .ws-column>header{gap:6px}.cloud-content .ws-column header>small{padding:2px 5px}}
+@media(max-width:760px){.cloud-toolbar{padding:14px 18px}.cloud-toolbar .button{font-size:11px;padding:8px 10px}.cloud-content .ws-shell{min-height:70vh}}
+@media(max-width:700px){.cloud-content .ws-toolbar .search{flex:1 0 100%}.cloud-content .ws-toolbar>select{width:100%}}
 @media(max-width:760px){.professional-toolbar{align-items:flex-start;flex-direction:column;padding:15px 20px}.professional-error,.member-management{padding:30px 18px}.member-management h1{font-size:29px}.access-panel{padding:22px 18px}.invite-form,.role-explanations{grid-template-columns:1fr}.file-audiences label{align-items:stretch;flex-direction:column;gap:8px}.member-row{gap:12px}.member-row>strong{flex-basis:100%}.member-row select{max-width:230px}.access-panel select{width:100%}}

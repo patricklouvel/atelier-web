@@ -1,141 +1,69 @@
-## Connexion professionnelle actuelle — mot de passe et invitations
+# Atelier web · Cœur de Mielles
 
-La connexion quotidienne se fait avec l’adresse e-mail et le mot de passe. Il n’y a aucun formulaire public d’inscription et aucun envoi de lien magique pour se connecter. L’invitation sert à activer le compte et à définir le premier mot de passe ; « Mot de passe oublié » conserve le parcours de récupération standard. Les anciens paragraphes sur la connexion par lien ci-dessous sont historiques.
+Le même projet contient le site vitrine public et l’atelier privé, accessible sur **/atelier**. L’atelier s’utilise directement dans le navigateur. L’application Rust et les exports locaux ne sont plus nécessaires pour créer et suivre les pièces.
 
-1. Exécuter la version actuelle de setup.sql dans Supabase SQL Editor. Elle migre les membres existants vers le rôle guest, conserve les fichiers et ajoute les droits par projet.
-2. Pour le premier administrateur uniquement, exécuter l’instruction de création/promotion commentée à la fin du script avec son adresse réelle. Aucun utilisateur n’est promu automatiquement depuis le navigateur.
-3. Dans Supabase Auth, activer le fournisseur e-mail et désactiver « Allow new users to sign up ». Configurer le SMTP pour les invitations et la récupération destinées à l’équipe.
-4. Site URL : https://votre-domaine/atelier. Redirect URLs : https://votre-domaine/atelier/activer et https://votre-domaine/atelier/reinitialiser. PUBLIC_PORTAL_URL doit correspondre au domaine utilisé. Ne pas réutiliser une ancienne invitation expirée.
-5. Après connexion avec le compte admin : « Accès et invitations » permet d’inviter, choisir les rôles, retirer un accès, affecter les projets et définir la visibilité de chaque fichier.
+## Mise en service sur Vercel
 
-| Rôle | Autorisations |
+1. Déployer le dépôt avec Vercel (Vite, commande de build : npm run build, sortie : dist).
+2. Relier le bon projet Supabase. Variables serveur : SUPABASE_URL et SUPABASE_SECRET_KEY (ou SUPABASE_SERVICE_ROLE_KEY). Variable publique : SUPABASE_PUBLISHABLE_KEY (ou SUPABASE_ANON_KEY). L’intégration Vercel fournit ces valeurs ; les alias NEXT_PUBLIC_* et les anciens VITE_* sont pris en charge. La clé privée reste exclusivement dans les fonctions serveur.
+3. Exécuter **setup.sql** dans Supabase SQL Editor. Le script complet crée les comptes autorisés, les rôles, le stockage privé et les tables de l’atelier. Il est réexécutable sans supprimer les données. Pour une installation qui possède déjà les comptes et le bucket, **workshop-schema.sql** ajoute uniquement le nouvel atelier.
+4. Définir le premier administrateur avec l’instruction commentée dans setup.sql, en remplaçant l’adresse. Cela autorise le compte, mais ne crée pas de mot de passe dans Supabase Auth.
+5. Dans Supabase Auth : activer le fournisseur e-mail, désactiver « Allow new users to sign up », configurer le SMTP pour l’équipe. Site URL : https://votre-domaine/atelier. Redirect URLs : https://votre-domaine/atelier/activer et https://votre-domaine/atelier/reinitialiser.
+6. Définir PUBLIC_PORTAL_URL sur le domaine canonique. Une invitation permet de choisir le premier mot de passe ; la connexion quotidienne utilise ensuite e-mail et mot de passe. Ne pas réutiliser un ancien lien expiré.
+7. Se connecter sur /atelier. Créer une collection, puis une pièce. Les installations neuves démarrent sans exemples ni fichiers fictifs.
+
+Une intégration Supabase–Vercel ne crée pas automatiquement les tables. Après un changement des variables, redéployer Vercel. Le bucket privé par défaut est atelier-private ; SUPABASE_BUCKET doit correspondre au bucket effectivement configuré.
+
+## Travail dans l’application web
+
+- **Collections et pièces** : création, nom, référence, consignes, échéance, notes privées ; modification du nom et de la description d’une collection.
+- **Suivi de fabrication** : Kanban à sept étapes, par déplacement de carte ou sélection d’étape.
+- **Fiche modèle** : métal/titre/alliage/poids/lot, dimensions, composants/BOM, pierres, finitions et zones, révisions, consignes et validation.
+- **Production** : STL et version validés pour la fonte avec arbre intégré, opérations, responsables et opérateurs, dates et poids d’entrée/sortie, contrôles qualité, photos et retours en correction. Impression des fiches avec le navigateur.
+- **Fichiers** : dépôt depuis le navigateur, stockage privé, téléchargement, prévisualisation des images et des modèles compatibles. Versions, couverture, visibilité et validation pour fabrication se règlent dans l’onglet Fichiers.
+- **Échanges & historique** : messages attribués au compte connecté et traces des modifications enregistrées.
+- **Accès & vitrine** : participants affectés à chaque pièce et invités clients explicitement sélectionnés. La vitrine client de l’atelier reste privée ; ce bouton ne publie rien sur le site public.
+- **Accès et invitations** : comptes, rôles, invitation initiale et retrait des autorisations.
+
+Les modifications du dossier, du Kanban, du partage et des fiches se valident avec **Enregistrer les modifications**. Les créations, transferts de fichiers et messages sont enregistrés immédiatement après succès serveur. L’état affiché distingue les changements en attente et ceux enregistrés. « Actualiser » récupère la version en ligne ; si un brouillon existe, son abandon doit être confirmé. Un changement de jeton de session conserve le brouillon.
+
+Si deux personnes modifient le même dossier, une révision périmée est refusée : le brouillon reste affiché et la version récente n’est pas écrasée. Exporter le suivi JSON permet de conserver les champs du brouillon avant de recharger et reporter les modifications ; cet export ne contient pas les fichiers binaires. L’actualisation entre postes est manuelle, sans diffusion instantanée des modifications.
+
+## Droits
+
+| Profil | Accès |
 | --- | --- |
-| admin | Tous les projets/fichiers, publication, comptes, rôles et partages |
-| participant | Projets affectés ; fichiers team et client |
-| guest | Projets affectés ; fichiers client uniquement |
+| Administrateur | Toutes les collections, pièces, fiches, notes et fichiers ; gestion des comptes et partages |
+| Participant fabrication | Pièces affectées, fiches et fichiers équipe/client ; modification du suivi de production, messages et ajout de fichiers équipe |
+| Invité client | Pièces sélectionnées ET affectées à son compte, texte client et fichiers marqués client ; lecture uniquement |
 
-Les rôles proviennent uniquement de atelier_members, jamais des métadonnées modifiables du compte. L’API filtre les projets et les fichiers avant de créer les liens de téléchargement. Les tables et le stockage privé ne sont pas accessibles directement aux rôles navigateur. Le dernier administrateur est protégé ; l’API interdit aussi de retirer son propre compte admin. Les anciens fichiers sans visibilité sont considérés team et ne sont pas ouverts aux invités. Les liens de fichiers déjà signés expirent après 60 secondes.
+Le serveur vérifie l’identité confirmée, l’existence du membre et son rôle depuis atelier_members à chaque requête. Les métadonnées du compte ne peuvent pas donner des droits. Les participants ne peuvent pas changer le dessin validé, les notes privées, les affectations ou la visibilité des fichiers. Une personne invitée n’a accès à aucune pièce par défaut.
 
-Le suivi complet et le Kanban restent pour l’instant locaux : ces modifications concernent les comptes, l’administration des accès et les fichiers de la galerie en ligne.
+RLS est activée sur les tables. Les rôles anon/authenticated n’ont aucun accès direct aux tables de l’atelier ni au bucket privé ; les API utilisent la clé serveur après contrôle des droits. Les URL de téléchargement expirent après 60 secondes. Les transferts utilisent une autorisation temporaire, puis la taille réellement stockée est vérifiée avant de rendre le fichier accessible. Les noms et chemins fournis par le navigateur ne déterminent jamais l’emplacement de stockage. Le dernier administrateur ne peut pas être retiré.
 
----
+Tables : atelier_members, atelier_project_access (ancien portail), atelier_collections, atelier_projects, atelier_files, atelier_events. La fonction atelier_save_project enregistre atomiquement le dossier, les métadonnées de ses fichiers et la trace d’audit, avec contrôle de révision. Les affectations et les fichiers possèdent leurs index ; les fichiers incomplets restent en état pending et ne sont pas consultables. Après une interruption brutale du navigateur, des transferts pending peuvent nécessiter un nettoyage administratif du stockage.
 
-> **Vitrine actuelle : Cœur de Mielles, par JINORIA.** Un atelier de design dont les recherches donnent naissance à quatre collections joaillières au sein de JINORIA. Navigation : Collections, Bijoux, L’atelier de design, Contact. Le footer réunit le contact, la sélection, JINORIA, la confidentialité et l’espace professionnel. Le site externe est `https://jinoria.com/` (surcharge possible par `VITE_JINORIA_URL`). Le contact prépare un message ; l’envoi direct par messagerie nécessite `VITE_CONTACT_EMAIL`. Voir `research/showroom-architecture.md`.
+## Formats et limites
 
-# Atelier ? collections et suivi de fabrication
+PNG/JPEG/WebP ; FBX, BLEND, STL, OBJ/MTL, GLB/GLTF, PLY, STEP/STP, 3DM ; PDF et ZIP. Limite applicative : 200 Mo par fichier, sous réserve du plafond réel du projet Supabase. Le fichier va directement au stockage, sans transiter dans une fonction Vercel.
 
-## Version locale actuelle ? 6 novembre 2026
+La prévisualisation 3D concerne FBX, GLB/GLTF, STL, OBJ et PLY. BLEND, STEP et 3DM restent téléchargeables. Privilégier GLB autonome ou FBX aux textures incorporées. Les dépendances externes ne sont pas regroupées automatiquement. La vérification de fabricabilité/manifold et les conversions CAO restent dans les outils métier.
 
-Ouvrir `http://127.0.0.1:17431/?apercu=1` apr?s `npm run dev`. Sans configuration Supabase, cet espace est aussi la page d?accueil du serveur de d?veloppement.
+## Développement et vérification
 
-- Collections et fiches pi?ces : consignes, r?f?rence, ?ch?ance, notes personnelles.
-- Kanban reprenant les sept ?tapes de l?application Rust, par glisser-d?poser ou s?lection d??tape.
-- Fichiers import?s dans IndexedDB : t?l?chargements, visualisation des images et lecteur 3D existant. Les versions et la validation pour fabrication se r?glent par fichier.
-- Affectation d?intervenants aux pi?ces ; s?lection des fichiers admin, fabrication, ou fabrication et client.
-- ?changes et historique des ?tapes sur la m?me fiche pi?ce.
-- Vitrine s?lectionn?e explicitement avec un texte client distinct des consignes internes.
+npm install
+npm run dev
+npm test
+npm run build
 
-Le s?lecteur ? Aper?u des acc?s ? sert ? v?rifier les vues admin, fabrication et client. **Il ne constitue pas une authentification ni une protection des donn?es locales.** Les donn?es et fichiers restent dans ce navigateur, sous cette origine. Aucun envoi, invitation ou synchronisation distante n?a lieu. Les exemples sont s?par?s de la biblioth?que Rust existante, qui n?est pas modifi?e ni automatiquement import?e.
+Serveur : http://127.0.0.1:17431. Les API locales utilisent les mêmes variables serveur que Vercel (copier .env.example vers .env.local et renseigner les valeurs). Les fichiers .env locaux sont ignorés par Git.
 
-Les m?tadonn?es sont enregistr?es sous `atelier.workshop.v1` dans localStorage et les fichiers dans la base IndexedDB `atelier-workshop-files`. ? Exporter le suivi JSON ? sauvegarde les m?tadonn?es seulement ; il ne contient pas les fichiers binaires. Le partage distant et les autorisations c?t? serveur devront ?tre impl?ment?s avant tout usage multiutilisateur. La version de production conserve pour l?instant le portail authentifi? d?crit ci-dessous ; le nouvel espace local n?y est pas encore branch?.
+En développement uniquement, sans Supabase ou avec ?apercu=1, le mode de démonstration local permet d’examiner les écrans. Ses exemples, son sélecteur de rôles, localStorage et IndexedDB ne constituent pas un partage distant. La version hébergée utilise toujours la connexion et l’atelier Supabase. Les données de démonstration ne sont pas importées automatiquement.
 
----
+Les anciennes API /api/portal et /api/access?action=project sont conservées pour compatibilité avec les exports Rust. Elles ne sont plus l’entrée du nouvel atelier. Les anciennes sélections exportées restent dans leur stockage, sans déplacement ni suppression ; elles ne sont pas converties automatiquement en projets du nouvel atelier. ATELIER_PUBLISH_KEY ne sert qu’à cet ancien circuit.
 
-# Atelier · galerie web des sélections exportées
+## Vitrine publique
 
-L’application personnelle est **Atelier d’origine**, dans le dossier voisin `Atelier-Windows`, avec sa bibliothèque, ses collections, ses moodboards, son Kanban et sa liaison Blender. Le bouton **Exporter vers le web** a été ajouté à cette application. Ce dossier contient uniquement le frontend de consultation et les API de publication privée.
+Cœur de Mielles, par JINORIA. Collections : Rivages, Galets, Horizon, Mielles ; types de bijoux indépendants des collections. Le site public utilise encore un catalogue éditorial distinct : la création d’une pièce de production ne publie pas automatiquement une fiche publique. La sélection client reste locale au visiteur. Le contact prépare un message ; l’envoi par messagerie nécessite VITE_CONTACT_EMAIL. Site JINORIA : https://jinoria.com/ (surcharge VITE_JINORIA_URL). Voir research/showroom-architecture.md.
 
-## Export depuis Atelier
-
-1. Ouvrir `../Atelier-Windows/Atelier.exe`, puis **Exporter vers le web** dans la barre latérale.
-2. Choisir une collection ou toutes les collections ; cocher les rendus et fichiers des pièces à publier. Rien n’est choisi par défaut.
-3. Saisir une présentation publique si nécessaire. Les notes personnelles, les états du Kanban, les moodboards et les chemins locaux ne sont pas envoyés.
-4. Renseigner l’adresse HTTPS de cette galerie déployée et la clé privée du propriétaire, puis **Exporter la sélection**.
-5. Une publication est créée par pièce sélectionnée, après validation des transferts. Les liens sont enregistrés dans la bibliothèque d’Atelier. L’option de remplacement retire les anciens partages de ces pièces sur la même galerie après réussite du nouvel envoi. Les erreurs de révocation sont signalées et peuvent être réessayées.
-
-La synchronisation est manuelle : les changements locaux suivants ne partent pas automatiquement. **Retirer du web** révoque le partage, sans supprimer les originaux. Les URL déjà signées peuvent rester valables 60 secondes ; les fichiers déjà téléchargés ne peuvent pas être rappelés. Maximum : 60 fichiers et 200 Mo par fichier.
-
-## Consultation web
-
-Galerie de projets avec couvertures, rendus agrandissables, liste des fichiers et lecteur 3D FBX, GLB/GLTF, STL, OBJ et PLY. Rotation, zoom, déplacement, grille, filaire, plein écran et première animation si présente. Les BLEND, STEP et 3DM restent téléchargeables, sans conversion automatique.
-
-Les dépendances ne sont pas collectées automatiquement : privilégier un GLB autonome ou un FBX aux textures incorporées. Les formats non acceptés par le portail peuvent être placés dans un ZIP téléchargeable, sans prévisualisation de ce ZIP.
-
-## Configurer Vercel et Supabase
-
-Aucun compte cloud ou hébergement n’a été créé automatiquement. Aucun fichier utilisateur n’a été envoyé dans le cloud pendant le développement. Pour de vrais transferts :
-
-1. Créer le projet Supabase ; exécuter `setup.sql`. Garder le bucket `atelier-private` **privé**.
-2. Désactiver les inscriptions publiques dans Supabase Auth, configurer SMTP et les invitations.
-3. Déployer ce dossier sur Vercel (Vite, sortie `dist`). Renseigner les variables de `.env.example` : backend `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_BUCKET`, `ATELIER_PUBLISH_KEY` (32 caractères minimum), `PUBLIC_PORTAL_URL` ; frontend `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
-4. Configurer Site URL et redirections Auth sur l’adresse HTTPS exacte, puis reconstruire le frontend.
-5. Autoriser et inviter les destinataires avec le panneau propriétaire existant dans Atelier > Pistes créatives > Publier sur la galerie de l’équipe > Personnes autorisées, ou via `/api/access`. Une session confirmée et l’inscription dans `atelier_members` sont requises.
-6. Utiliser cette adresse et la même `ATELIER_PUBLISH_KEY` dans le panneau d’export d’Atelier.
-
-La galerie contient uniquement les publications explicites. Tous les membres autorisés voient toutes les publications du portail ; il n’y a pas de droits par projet. Un lien seul ne donne aucun accès. Les sessions utilisent `sessionStorage`. La clé service_role reste exclusivement backend, jamais préfixée VITE. Le bucket peut conserver des brouillons après interruption et des fichiers après révocation : prévoir leur nettoyage administratif.
-
-## Développement et contrôles
-
-`npm ci`, `npm run dev`, `npm run build`, `npm test`.
-
-Les sources de l’application personnelle sont dans `../atelier`. Ses contrôles sont `npm run build`, `npm run test:web-export` et `npm run test:rust`. Le parcours réel dans Atelier a été vérifié sur une bibliothèque de test séparée : import local, déplacement Kanban et sauvegarde, sélection d’un rendu et d’un FBX en excluant le BLEND et l’autre pièce, liens persistés, remplacement du partage et échec d’envoi. Les API cloud et le transfert du modèle ont été simulés ; une recette sur l’hébergement réel reste nécessaire après configuration.
-
-Références du lecteur : [FBXLoader](https://threejs.org/docs/pages/FBXLoader.html), [OrbitControls](https://threejs.org/docs/pages/OrbitControls.html), [GLTFLoader](https://threejs.org/docs/pages/GLTFLoader.html).
-
-### Connexion réelle en développement local
-
-Le serveur lancé par `npm run dev` exécute aussi les API privées `/api/portal` et `/api/access`.
-
-1. Copier `.env.example` vers `.env.local` et renseigner les valeurs du projet Supabase (frontend **et** backend). Ne jamais préfixer la clé `service_role` par `VITE_`.
-2. Mettre `PUBLIC_PORTAL_URL=http://127.0.0.1:17431` dans `.env.local`.
-3. Dans Supabase Auth, ajouter `http://127.0.0.1:17431` aux URL de redirection autorisées, sans remplacer l’adresse de production.
-4. Le compte doit être invité et présent dans `atelier_members`, comme en production.
-5. Redémarrer `npm run dev`, ouvrir `http://127.0.0.1:17431`, puis demander le lien de connexion avec cette adresse invitée.
-
-Sans cette configuration, l’écran « Galerie à connecter » est normal : aucun compte local ni mot de passe par défaut n’existe. Le fichier `.env.local` reste sur votre ordinateur et ne doit pas être partagé.
-
-### Aperçu sans Supabase
-
-En développement, si Supabase n’est pas renseigné, la page d’accueil ouvre automatiquement une galerie de démonstration. On peut aussi l’ouvrir explicitement sur `http://127.0.0.1:17431/?apercu=1`. Les projets d’exemple permettent de tester la navigation et les rendus, sans connexion ni appel aux API privées. Cet aperçu est réservé à `npm run dev` et n’est pas inclus dans la version de production.
-
-### Fiches modèle et production
-
-Chaque fiche pièce locale possède désormais deux onglets supplémentaires :
-
-- **Fiche modèle** : client/commande, date, révision, quantité, visuel, métal/titre/alliage/couleur, poids métal théorique et réel, fournisseur et lot, cotes et tolérances, nomenclature de composants, lots de pierres et sertissage, finitions par zone, traitements, fichiers et versions, consignes et validation du modèle.
-- **Production** : sélection d’un STL avec arbre de coulée intégré et validation du fondeur liée à sa version, bilan matière, opérations ordonnées avec responsable/opérateur/date/poids entrée-sortie/lot/remarques, contrôles qualité avec photo associée et validation, motifs de refus et retour au Kanban.
-
-Les propositions d’opérations et de contrôles sont facultatives et modifiables. Elles ne sont pas automatiquement marquées comme réalisées ou conformes. Les validations demandent un opérateur et une date. Toute modification d’une opération ou d’un contrôle validé retire sa signature ; toute modification de la définition technique retire la validation du modèle. Une version de STL différente rend la validation de fonte périmée. Les actions de validation et de retour en correction sont consignées dans l’historique de la pièce.
-
-L’administrateur édite la définition technique ; les intervenants affectés la consultent et remplissent la production. Les clients n’accèdent à aucun de ces deux onglets. Ces comportements restent des aperçus locaux, sans authentification distante. Les données techniques sont conservées avec la pièce et incluses dans l’export JSON du suivi.
-
-Le bouton **Imprimer / PDF** ouvre l’impression navigateur de la fiche active au format A4, sans navigation. Selon le nombre de composants/opérations, la fiche peut occuper plusieurs pages. Les champs laissés vides ne sont pas des valeurs de production validées.
-
-## Vitrine JINORIA · Cœur des Mielles
-
-La page d’accueil publique `/` présente désormais **Cœur des Mielles, par JINORIA** : signature créative de la maison, déclinée en univers Rivages, Galets et Horizon. Direction visuelle ivoire, sable, or chaud et couleurs marines ; visuels optimisés à partir des références du projet.
-
-Routes : `/coeur-des-mielles`, `/creations`, `/collections/rivages`, `/collections/galets`, `/collections/horizon`, `/creations/:id`, `/la-maison`, `/selection`. Les réécritures Vercel permettent de recharger ces pages directement. Le catalogue public est défini dans `src/showroom/catalog.js` et contient uniquement les données de présentation sélectionnées. Il n’importe aucune fiche technique, aucun suivi ni fichier privé de l’atelier. La publication automatique depuis l’atelier/Supabase n’est pas encore branchée à ce catalogue.
-
-L’espace professionnel est accessible sur `/atelier`. En développement sans Supabase, il ouvre l’atelier local ; en production, il demande une connexion. Les liens de connexion et d’invitation utilisent désormais cette route. Conserver `https://votre-domaine/atelier` dans les redirections autorisées de Supabase Auth. Les anciens liens de partage `/#<token>` restent reconnus.
-
-La vitrine comprend recherche, filtres, fiches produits, agrandissement des images et sélection de favoris locale. Les textes de caractéristiques ne constituent pas des fiches de fabrication validées ; titres, prix, dimensions et disponibilité ne sont pas inventés.
-
-Contact : renseigner éventuellement `VITE_CONTACT_EMAIL`, puis reconstruire. Le formulaire prépare un message copiable et, si l’adresse est configurée, propose de l’ouvrir dans la messagerie. Aucun message n’est envoyé par un backend ; aucun envoi réussi n’est simulé. Sans adresse configurée, le brouillon reste consultable et copiable. Aucun achat en ligne n’est activé.
-
-### Classement des créations
-
-La signature Cœur des Mielles est structurée en trois collections : Rivages (mouvement, vagues et entrelacs), Galets (volumes doux et assemblages), Horizon (lignes et dégradés de couleur). Chaque bijou possède une seule collection principale et un type indépendant : Bagues, Bracelets, Colliers & pendentifs ou Boucles d’oreilles. Joncs et bracelets sur cordon restent des sous-types de bracelets, pas des collections.
-
-Les pages `/collections` et `/bijoux` proposent ces deux entrées. Les pages `/collections/:id` se filtrent par type ; `/bijoux/:id` se filtre par collection. Les trois collections sont présentées à égalité sur l’accueil. La bague Blainville est conservée en réserve dans le catalogue source et n’est plus proposée publiquement.
-
-
-## Connexion Supabase avec l’intégration Vercel
-
-Le build reconnaît directement SUPABASE_URL et SUPABASE_PUBLISHABLE_KEY (ou leurs alias NEXT_PUBLIC_). Les API utilisent SUPABASE_SECRET_KEY. Il n’est pas nécessaire de dupliquer ces variables avec un préfixe VITE_. Les anciennes clés anon/service_role restent compatibles. Après une modification des variables, reconstruire et redéployer le site.
-
-Dans Supabase Auth → URL Configuration, autoriser l’adresse exacte du portail professionnel, par exemple https://atelier-web-blue.vercel.app/atelier. Le retour du lien de connexion vise /atelier. Le compte doit avoir été invité et son adresse doit être autorisée dans atelier_members ; l’intégration d’hébergement ne crée ni ces autorisations ni le bucket privé. Exécuter setup.sql pour préparer la table et le stockage si ce n’est pas déjà fait.
-
-La clé ATELIER_PUBLISH_KEY sert aux opérations de publication et d’invitation depuis l’application propriétaire. Son absence ne bloque plus la consultation authentifiée de la galerie ; elle continue de bloquer les opérations de publication.
-
-La nouvelle interface de suivi avec Kanban reste pour le moment l’atelier local de développement ; la production utilise encore la galerie privée authentifiée. La correction de configuration ne transforme pas ce suivi local en service multiutilisateur.
+Références techniques : [transferts signés Supabase](https://supabase.com/docs/reference/javascript/file-buckets-uploadtosignedurl) et [filtres de mise à jour](https://supabase.com/docs/reference/javascript/update).

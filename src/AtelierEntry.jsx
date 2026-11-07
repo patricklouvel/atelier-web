@@ -10,5 +10,5 @@ export default function AtelierEntry(){
   const Workshop=React.lazy(()=>import('./workshop/Workshop'));
   return <React.Suspense fallback={<p>Ouverture de l’atelier…</p>}><Workshop/></React.Suspense>;
  }
- return <Access>{session=><ProfessionalArea session={session}/>}</Access>;
+ return <Access>{session=><ProfessionalArea key={session.user.id} session={session}/>}</Access>;
 }
