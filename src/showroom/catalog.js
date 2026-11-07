@@ -15,6 +15,10 @@ import miellesDrop from './assets/mielles-drop.webp';
 export const images={campaign,ring,estran,maree,galets,pendentif,blainville,cordon,landscape,horizonRing,horizonCuff,miellesBracelet,miellesNecklace,miellesDrop};
 export const brand={name:'Cœur de Mielles',joaillier:'JINORIA',signature:'par JINORIA'};
 // Public editorial selection only. The complete research audit is internal in research/.
+// Optional per-product media (only files intended for public viewing):
+// gallery: [{src: '/images/bague-face.webp', alt: 'Bague de face', caption: 'De face'}, ...]
+// model: {url: '/models/bague.stl', name: 'bague.stl'}
+// Without a gallery, image/detail are used; without a model, the 3D view shows "À venir".
 export const universes=[
  {id:'rivages',name:'Rivages',code:'01',theme:'Le mouvement',codes:'Vagues · rubans · entrelacs',line:'Le mouvement devient précieux.',description:'Des vagues d’or, des rubans qui se croisent, des passages de lumière. Rivages suit les mouvements de l’eau, dans des silhouettes souples et entrelacées.',image:campaign},
  {id:'galets',name:'Galets',code:'02',theme:'Les formes libres',codes:'Contours doux · volumes libres · assemblages',line:'La douceur des formes libres.',description:'Des formes arrondies et irrégulières s’assemblent comme des galets recueillis sur la plage. Leurs surfaces polies ou grainées composent un équilibre de matières et de volumes.',image:galets},

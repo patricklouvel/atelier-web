@@ -64,6 +64,44 @@ Les anciennes API /api/portal et /api/access?action=project sont conservées pou
 
 ## Vitrine publique
 
-Cœur de Mielles, par JINORIA. Collections : Rivages, Galets, Horizon, Mielles ; types de bijoux indépendants des collections. Le site public utilise encore un catalogue éditorial distinct : la création d’une pièce de production ne publie pas automatiquement une fiche publique. La sélection client reste locale au visiteur. Le contact prépare un message ; l’envoi par messagerie nécessite VITE_CONTACT_EMAIL. Site JINORIA : https://jinoria.com/ (surcharge VITE_JINORIA_URL). Voir research/showroom-architecture.md.
+Cœur de Mielles, par JINORIA. Collections : Rivages, Galets, Horizon, Mielles ; types de bijoux indépendants des collections. Les fiches publiques se gèrent depuis l’onglet **Présentation publique** de chaque pièce, réservé aux administrateurs. La création d’une pièce ou l’enregistrement d’un brouillon ne publient rien automatiquement. La sélection client reste locale au visiteur. Le contact prépare un message ; l’envoi par messagerie nécessite VITE_CONTACT_EMAIL. Site JINORIA : https://jinoria.com/ (surcharge VITE_JINORIA_URL). Voir research/showroom-architecture.md.
+
+### Éditer et publier depuis l’atelier
+
+Sur une installation existante, exécuter **public-presentation-schema.sql** dans Supabase SQL Editor, puis déployer cette version du projet. Les nouvelles installations utilisent **setup.sql**, qui inclut cette migration. Les variables serveur Supabase sont les mêmes que pour l’atelier ; aucune nouvelle clé navigateur n’est nécessaire.
+
+1. Se connecter comme administrateur sur `/atelier`, ouvrir une pièce, puis **Présentation publique**.
+2. Pour modifier une fiche déjà présente sur le site, choisir **Reprendre une fiche du catalogue actuel**. Ses textes et ses photos restent disponibles sans devoir les réimporter. L’adresse publique détermine la fiche remplacée ; elle est conservée après la première publication.
+3. Renseigner le nom, la collection publique, le type de bijou, les textes, les matières et les finitions. Les consignes et notes de fabrication ne sont jamais reprises automatiquement.
+4. Importer les photos et le GLB ou STL depuis ce panneau, ou utiliser les fichiers déjà dans la pièce. Sélectionner explicitement les photos du carrousel et le modèle 3D. Les flèches réordonnent les photos ; la première devient la couverture. Une photo retirée du carrousel reste dans les fichiers de la pièce.
+5. **Enregistrer le brouillon** conserve le travail sans changer la fiche en ligne. **Aperçu** ouvre le véritable carrousel et le lecteur 3D dans une fenêtre isolée des styles de l’atelier.
+6. **Publier sur le site** enregistre et publie cette version en une opération. Le site charge les nouvelles données via `/api/catalogue`, sans redéploiement pour les publications suivantes. Le catalogue se recharge aussi au retour sur l’onglet du site.
+7. **Retirer du site public** masque la fiche et ses médias, tout en conservant le brouillon pour une nouvelle publication. Une ancienne version éditoriale de la même fiche ne réapparaît pas après ce retrait.
+
+Le panneau possède son propre enregistrement, distinct d’**Enregistrer les modifications** de la fabrication. Les éditions concurrentes sont refusées sans écraser le travail affiché. Les invités clients et les participants fabrication ne peuvent ni lire les brouillons publics, ni publier. La vitrine privée des invités, dans **Accès & vitrine**, continue à fonctionner indépendamment.
+
+La table `atelier_presentations` conserve un brouillon et un instantané publié distincts, avec révision et journal d’audit. Les tables restent inaccessibles directement aux rôles navigateur. L’API publique ne retourne que les champs publics et ne signe que les médias explicitement choisis dans la version publiée, avec contrôle de leur pièce et de leur transfert complet. Les liens déjà signés peuvent rester accessibles pendant leur durée résiduelle de 60 secondes après un retrait. Les illustrations du catalogue initial restent des ressources publiques du site ; le retrait d’une fiche ne supprime pas ces fichiers. Les noms internes des fichiers, chemins de stockage, affectations et données de fabrication ne figurent pas dans le catalogue public.
+
+Sans configuration Supabase, le mode de développement permet de tester l’éditeur, l’aperçu et la publication dans ce navigateur uniquement, avec un bandeau explicite. Cette démonstration utilise localStorage et IndexedDB et ne constitue pas une mise en ligne. Sur l’hébergement, une erreur de catalogue est signalée et ne réactive pas silencieusement les anciennes fiches.
+
+### Photos et vue 3D des fiches publiques
+
+Chaque fiche `/creations/:id` propose un carrousel avec miniatures, flèches, navigation au clavier, balayage sur mobile et agrandissement. Le catalogue éditorial initial est défini dans `src/showroom/catalog.js`, puis complété ou remplacé par les présentations publiées depuis l’atelier. Pour les fiches éditoriales, les champs `image` et `detail` restent utilisés par défaut ; les images identiques sont regroupées.
+
+Pour ajouter plusieurs vues d’un produit, renseigner `gallery` sur son entrée du catalogue. Pour activer sa vue 3D, ajouter `model` avec l’URL publique du GLB ou du STL et son nom. Exemple :
+
+```js
+gallery: [
+ {src: '/images/bague-face.webp', alt: 'Bague de face', caption: 'De face'},
+ {src: '/images/bague-profil.webp', alt: 'Bague de profil', caption: 'De profil'},
+],
+model: {url: '/models/bague.stl', name: 'bague.stl'},
+```
+
+Les fichiers de cet exemple seraient placés dans `public/images/` et `public/models/`. Aucun modèle de démonstration n’est publié. En l’absence de `model`, l’onglet « Vue 3D » affiche « À venir ». Le lecteur ne se charge qu’à son ouverture ; il permet de tourner, zoomer, recentrer, contrôler la rotation automatique et passer en plein écran.
+
+La présentation client utilise un éclairage de studio généré localement, un fond ivoire dégradé, une ombre de contact, des reflets doux et un cadrage calculé pour la pièce, y compris en plein écran vertical. Une rotation lente démarre à l’ouverture, sauf si le navigateur demande une réduction des animations, et s’arrête dès que le visiteur manipule la pièce. Les boutons de zoom complètent la molette et le geste de pincement. Les matières exportées dans le GLB sont conservées ; les STL sont présentés avec une finition dorée indicative et des normales lissées sans déplacer les sommets ni arrondir les arêtes vives. L’atelier conserve son affichage technique.
+
+Ces médias sont publics et récupérables par le navigateur. La sélection explicite dans **Présentation publique**, suivie de **Publier sur le site**, rend les médias choisis publics même si leur visibilité dans la vitrine privée reste différente. Les autres fichiers de la pièce restent privés.
 
 Références techniques : [transferts signés Supabase](https://supabase.com/docs/reference/javascript/file-buckets-uploadtosignedurl) et [filtres de mise à jour](https://supabase.com/docs/reference/javascript/update).

@@ -3,6 +3,7 @@ import {client,authorize} from '../lib/auth.js';
 import {serverSupabaseConfig} from '../lib/supabase-config.js';
 import {requireRole,AUDIENCES} from '../lib/access-policy.js';
 import {fail,uuid,text,assertRead,canReadFile,projectView,validateProject,uploadMetadata} from '../lib/workshop-policy.js';
+import {managePresentation} from '../lib/presentation-service.js';
 
 function checked(result){if(result.error)throw fail(result.error.code==='42P01'||result.error.code==='PGRST205'?'Atelier web à initialiser : exécutez setup.sql dans Supabase.':'Enregistrement indisponible. Réessayez.',503);return result.data;}
 export function createWorkshopHandler(c,storage,checkAccess=req=>authorize(req,c)){return async(req,res)=>{
@@ -11,6 +12,7 @@ export function createWorkshopHandler(c,storage,checkAccess=req=>authorize(req,c
  try{
   const member=await checkAccess(req);requireRole(member,['admin','participant','guest']);
   const action=req.query?.action||'index',body=req.body||{};
+  if(action==='presentation')return res.status(200).json(await managePresentation(c,member,req.query.projectId||body.projectId,req.method,body));
   async function getProject(id){const row=checked(await c.from('atelier_projects').select('*').eq('id',uuid(id)).maybeSingle());assertRead(row,member);return row;}
   async function one(row){
    const [files,events]=await Promise.all([c.from('atelier_files').select('*').eq('project_id',row.id).eq('state','ready'),member.role==='guest'?{data:[]}:c.from('atelier_events').select('*').eq('project_id',row.id).order('created_at',{ascending:false})]);

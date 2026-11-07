@@ -21,6 +21,8 @@ svg{flex-shrink:0}
 .showroom-root button{border:0;background:none}
 .sr-skip{position:fixed;left:20px;top:-80px;z-index:1000;padding:14px;background:var(--cream)}
 .sr-skip:focus{top:15px}
+.sr-catalogue-status{padding:12px 5%;font-size:11px;background:#eee8dd;color:#645c4b;text-align:center;line-height:1.7}
+.showroom-root .sr-catalogue-status button{text-decoration:underline;text-underline-offset:3px;margin-left:10px}
 .sr-header{position:relative;z-index:20;background:#f8f6f2}
 .sr-header-row{height:102px;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;padding:0 4.5%;border-bottom:1px solid var(--line)}
 .sr-header-tools{justify-self:end;display:flex;gap:23px}
@@ -314,4 +316,3 @@ svg{flex-shrink:0}
 .sr-jinoria-page>p.sr-jinoria-intro{margin:22px auto 30px}
 @media(max-width:760px){.sr-brand-signature em{font-size:10px}
 }
-
