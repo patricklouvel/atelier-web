@@ -68,7 +68,9 @@ Lune de Mielles, par JINORIA. Collections : Rivages, Galets, Horizon, Mielles ; 
 
 ### Éditer et publier depuis l’atelier
 
-Sur une installation existante, exécuter **public-presentation-schema.sql** dans Supabase SQL Editor, puis déployer cette version du projet. Les nouvelles installations utilisent **setup.sql**, qui inclut cette migration. Les variables serveur Supabase sont les mêmes que pour l’atelier ; aucune nouvelle clé navigateur n’est nécessaire.
+Sur une installation existante, exécuter **public-presentation-schema.sql**, puis **file-deletion-schema.sql** dans Supabase SQL Editor, puis déployer cette version du projet. Les nouvelles installations utilisent **setup.sql**, qui inclut ces migrations. Les variables serveur Supabase sont les mêmes que pour l’atelier ; aucune nouvelle clé navigateur n’est nécessaire.
+
+L’administrateur peut supprimer un fichier depuis La pièce ou Fichiers, après confirmation. Un fichier utilisé dans un brouillon ou une version publique doit d’abord être retiré de ces présentations. La suppression met à jour la couverture et les références de fabrication, puis efface le fichier du stockage. Si le stockage est indisponible, le fichier reste signalé « Suppression à terminer » pour permettre une nouvelle tentative, y compris après actualisation.
 
 1. Se connecter comme administrateur sur `/atelier`, ouvrir une pièce, puis **Présentation publique**.
 2. Pour modifier une fiche déjà présente sur le site, choisir **Reprendre une fiche du catalogue actuel**. Ses textes et ses photos restent disponibles sans devoir les réimporter. L’adresse publique détermine la fiche remplacée ; elle est conservée après la première publication.

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {createWorkshopHandler} from '../api/workshop.js';
 import {projectView,validateProject,uploadMetadata,safeProduction} from '../lib/workshop-policy.js';
+import {presentationUsesFile} from '../src/workshop/file-removal.js';
 import {productionDefaults} from '../src/workshop/production-model.js';
 
 const admin={email:'admin@example.fr',role:'admin'},team={email:'atelier@example.fr',role:'participant'},guest={email:'client@example.fr',role:'guest'};
@@ -10,10 +11,17 @@ function fixture(){
  const collection=randomUUID(),id=randomUUID();
  const project={id,collection_id:collection,revision:1,assignees:[team.email],client_emails:[guest.email],published:true,payload:{name:'Amarre',code:'AMA-001',brief:'Consigne interne',notes:'Note privée',clientText:'Texte client',status:'Modélisation',production:productionDefaults()}};
  const tables={atelier_collections:[{id:collection,name:'Rivages',description:'',revision:1}],atelier_projects:[project],atelier_members:[admin,team,guest],atelier_files:[],atelier_events:[]},signed=[],blobs=new Map();
- const c={from(table){const filters=[];let op='read',values,single=false;const q={select(){return q},eq(k,v){filters.push(r=>r[k]===v);return q},contains(k,v){filters.push(r=>v.every(x=>r[k].includes(x)));return q},in(k,v){filters.push(r=>v.includes(r[k]));return q},order(){return q},insert(v){op='insert';values=v;return q},update(v){op='update';values=v;return q},delete(){op='delete';return q},single(){single=true;return q},maybeSingle(){single=true;return q},then(resolve,reject){try{let rows=tables[table].filter(row=>filters.every(f=>f(row)));if(op==='insert'){rows=[{id:randomUUID(),revision:1,state:'pending',created_at:new Date().toISOString(),...values}];tables[table].push(...rows)}if(op==='update')rows.forEach(row=>Object.assign(row,values));if(op==='delete')tables[table]=tables[table].filter(row=>!rows.includes(row));return Promise.resolve({data:structuredClone(single?rows[0]||null:rows)}).then(resolve,reject);}catch(e){return Promise.reject(e).then(resolve,reject)}}};return q},async rpc(name,args){const row=tables.atelier_projects.find(r=>r.id===args.p_id&&r.revision===args.p_revision);if(!row)return {error:{code:'40001'}};Object.assign(row,args.p_data,{revision:row.revision+1});args.p_files.forEach(f=>Object.assign(tables.atelier_files.find(x=>x.id===f.id),{metadata:f.metadata}));tables.atelier_events.push({id:randomUUID(),project_id:row.id,author:args.p_actor,text:args.p_event,created_at:new Date().toISOString()});return {data:structuredClone(row)}}};
+ const c={from(table){const filters=[];let op='read',values,single=false;const q={select(){return q},eq(k,v){filters.push(r=>r[k]===v);return q},contains(k,v){filters.push(r=>v.every(x=>r[k].includes(x)));return q},in(k,v){filters.push(r=>v.includes(r[k]));return q},order(){return q},insert(v){op='insert';values=v;return q},update(v){op='update';values=v;return q},delete(){op='delete';return q},single(){single=true;return q},maybeSingle(){single=true;return q},then(resolve,reject){try{let rows=tables[table].filter(row=>filters.every(f=>f(row)));if(op==='insert'){rows=[{id:randomUUID(),revision:1,state:'pending',created_at:new Date().toISOString(),...values}];tables[table].push(...rows)}if(op==='update')rows.forEach(row=>Object.assign(row,values));if(op==='delete')tables[table]=tables[table].filter(row=>!rows.includes(row));return Promise.resolve({data:structuredClone(single?rows[0]||null:rows)}).then(resolve,reject);}catch(e){return Promise.reject(e).then(resolve,reject)}}};return q},async rpc(name,args){if(name==='atelier_prepare_file_deletion'){
+ const row=tables.atelier_projects.find(r=>r.id===args.p_project_id),file=tables.atelier_files.find(f=>f.id===args.p_file_id);
+ if(file.metadata.deleting)return {data:null};
+ if(row.revision!==args.p_revision)return {error:{code:'40001'}};
+ const presentation=(tables.atelier_presentations||[]).find(p=>p.project_id===row.id);
+ if(presentationUsesFile(presentation,file.id))return {error:{code:'23503'}};
+ row.payload=args.p_payload;row.revision++;file.state='pending';file.metadata.deleting=true;return {data:null};
+}const row=tables.atelier_projects.find(r=>r.id===args.p_id&&r.revision===args.p_revision);if(!row)return {error:{code:'40001'}};Object.assign(row,args.p_data,{revision:row.revision+1});args.p_files.forEach(f=>Object.assign(tables.atelier_files.find(x=>x.id===f.id),{metadata:f.metadata}));tables.atelier_events.push({id:randomUUID(),project_id:row.id,author:args.p_actor,text:args.p_event,created_at:new Date().toISOString()});return {data:structuredClone(row)}}};
  const storage={createSignedUrl:async path=>{signed.push(path);return {data:{signedUrl:'https://storage.example/'+path}}},createSignedUploadUrl:async path=>({data:{signedUrl:'https://storage.example/upload/'+path}}),info:async path=>({data:{size:blobs.get(path)}}),remove:async paths=>{paths.forEach(p=>blobs.delete(p));return {data:[]}}};
  async function call(member,action,method='GET',body={},query={}){let status,result;await createWorkshopHandler(c,storage,async()=>member)({method,headers:{},query:{action,...query},body},{setHeader(){},status(s){status=s;return this},json(v){result=v}});return {status,result};}
- return {tables,project,id,collection,call,blobs,signed};
+ return {tables,project,id,collection,call,blobs,signed,storage};
 }
 test('online workshop creates collections and projects without any desktop manifest',async()=>{
  const f=fixture(),id=randomUUID();assert.equal((await f.call(admin,'collection','POST',{id,name:'Mielles',description:'Dunes'})).status,201);
@@ -32,6 +40,35 @@ test('online workshop transfers STL, Blender and 3MF attachments and keeps them 
  const visible=(await f.call(admin,'index')).result.pieces[0].files;
  assert.deepEqual(visible.map(file=>file.name).sort(),['impression.3mf','piece.stl','source.blend']);
  assert.equal((await f.call(guest,'index')).result.pieces[0].files.length,0);
+});
+
+test('only admin deletes a ready file, including the stored blob; stale and public references stay protected',async()=>{
+ const f=fixture();const start=await f.call(admin,'upload','POST',{projectId:f.id,name:'photo.png',size:120});
+ const file=f.tables.atelier_files[0];f.blobs.set(file.storage_path,120);await f.call(admin,'complete','POST',{id:start.result.id});
+ f.project.payload.cover=file.id;
+ for(const member of [team,guest])assert.equal((await f.call(member,'delete-file','DELETE',{id:file.id,revision:1})).status,403);
+ assert.equal((await f.call(admin,'delete-file','DELETE',{id:file.id,revision:0})).status,409);
+ f.tables.atelier_presentations=[{project_id:f.id,live:{gallery:[{fileId:file.id}]}}];
+ assert.equal((await f.call(admin,'delete-file','DELETE',{id:file.id,revision:1})).status,409);assert(f.blobs.has(file.storage_path));
+ f.tables.atelier_presentations=[];
+ const deleted=await f.call(admin,'delete-file','DELETE',{id:file.id,revision:1});assert.equal(deleted.status,200);
+ assert.equal(deleted.result.piece.cover,'');assert.equal(deleted.result.piece.files.length,0);assert.equal(deleted.result.piece.revision,2);
+ assert.equal(f.blobs.has(file.storage_path),false);assert.equal(f.tables.atelier_files.length,0);
+ assert.equal((await f.call(admin,'file-url','GET',{}, {id:file.id})).status,404);
+});
+
+test('a failed storage deletion can be retried, and cannot resurrect as a completed upload',async()=>{
+ const f=fixture();const start=await f.call(admin,'upload','POST',{projectId:f.id,name:'source.blend',size:120});
+ const file=f.tables.atelier_files[0];f.blobs.set(file.storage_path,120);await f.call(admin,'complete','POST',{id:start.result.id});
+ const originalRemove=f.storage.remove;f.storage.remove=async()=>({error:{code:'storage_unavailable'}});
+ assert.equal((await f.call(admin,'delete-file','DELETE',{id:file.id,revision:1})).status,503);
+ assert.equal((await f.call(admin,'index')).result.pieces[0].files[0].deleting,true);
+ assert.equal((await f.call(team,'index')).result.pieces[0].files.length,0);
+ f.storage.remove=originalRemove;
+ assert.equal((await f.call(admin,'complete','POST',{id:file.id})).status,409);
+ assert.equal((await f.call(admin,'file-url','GET',{}, {id:file.id})).status,409);
+ assert.equal((await f.call(admin,'delete-file','DELETE',{id:file.id,revision:1})).status,200);
+ assert.equal(f.tables.atelier_files.length,0);assert.equal(f.blobs.has(file.storage_path),false);
 });
 
 test('server scopes projects, collections, notes, production and history by authenticated role',async()=>{

@@ -16,7 +16,7 @@ export function createWorkshopHandler(c,storage,checkAccess=req=>authorize(req,c
   if(action==='presentation')return res.status(200).json(await managePresentation(c,member,req.query.projectId||body.projectId,req.method,body));
   async function getProject(id){const row=checked(await c.from('atelier_projects').select('*').eq('id',uuid(id)).maybeSingle());assertRead(row,member);return row;}
   async function one(row){
-   const [files,events]=await Promise.all([c.from('atelier_files').select('*').eq('project_id',row.id).eq('state','ready'),member.role==='guest'?{data:[]}:c.from('atelier_events').select('*').eq('project_id',row.id).order('created_at',{ascending:false})]);
+   const [files,events]=await Promise.all([c.from('atelier_files').select('*').eq('project_id',row.id),member.role==='guest'?{data:[]}:c.from('atelier_events').select('*').eq('project_id',row.id).order('created_at',{ascending:false})]);
    return projectView(row,checked(files)||[],checked(events)||[],member);
   }
   if(action==='people'&&req.method==='GET'){
@@ -30,7 +30,7 @@ export function createWorkshopHandler(c,storage,checkAccess=req=>authorize(req,c
    const rows=checked(await query)||[],ids=rows.map(row=>row.id),collectionIds=[...new Set(rows.map(row=>row.collection_id))];
    const [collections,files,events,members]=await Promise.all([
     member.role==='admin'?c.from('atelier_collections').select('*').order('name'):collectionIds.length?c.from('atelier_collections').select('*').in('id',collectionIds):{data:[]},
-    ids.length?c.from('atelier_files').select('*').in('project_id',ids).eq('state','ready'):{data:[]},
+    ids.length?c.from('atelier_files').select('*').in('project_id',ids):{data:[]},
     ids.length&&member.role!=='guest'?c.from('atelier_events').select('*').in('project_id',ids).order('created_at',{ascending:false}):{data:[]},
     member.role==='admin'?c.from('atelier_members').select('email,role'):{data:[]},
    ]);
@@ -92,6 +92,7 @@ export function createWorkshopHandler(c,storage,checkAccess=req=>authorize(req,c
    if(action==='delete-file'&&req.method==='DELETE'){
     requireRole(member,['admin']);
     if(!Number.isSafeInteger(body.revision))throw fail('Révision manquante.');
+    if(file.state!=='ready'&&!file.metadata.deleting)throw fail('Ce transfert est encore en cours. Attendez sa fin ou annulez-le.',409);
     const view=await one(project),clean=withoutFile(view,file.id);
     const {cover,production}=clean;
     const result=await c.rpc('atelier_prepare_file_deletion',{p_project_id:project.id,p_file_id:file.id,p_revision:body.revision,p_payload:{...project.payload,cover,production},p_actor:member.email});

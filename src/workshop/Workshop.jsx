@@ -18,12 +18,12 @@ const day=v=>v?new Date(v).toLocaleDateString('fr-FR'):'';
 function useFile(file,download=false){
  const resolve=useContext(RemoteFiles),[url,setUrl]=useState(file?.sample?samples[file.sample]:null);
  useEffect(()=>{let alive=true,owned,timer;setUrl(file?.sample?samples[file.sample]:null);
-  async function load(){try{if(!file||file.sample)return;if(file.remote){const next=await resolve(file.id,download);if(alive){setUrl(next);timer=setTimeout(load,45000);}}else{const blob=await getFile(file.id);if(blob&&alive){owned=URL.createObjectURL(blob);setUrl(owned);}}}catch{if(alive)setUrl(null);}}
+  async function load(){try{if(!file||file.deleting||file.sample)return;if(file.remote){const next=await resolve(file.id,download);if(alive){setUrl(next);timer=setTimeout(load,45000);}}else{const blob=await getFile(file.id);if(blob&&alive){owned=URL.createObjectURL(blob);setUrl(owned);}}}catch{if(alive)setUrl(null);}}
   load();return()=>{alive=false;clearTimeout(timer);if(owned)URL.revokeObjectURL(owned)};
  },[file?.id,file?.remote,resolve,download]);return url;
 }
 function Picture({file,...props}){const url=useFile(file);return url?<img src={url} {...props}/>:<div className="ws-placeholder"><Box size={28}/></div>;}
-function FileLink({file}){const url=useFile(file,true);return url?<a className="icon-button" href={url} download={file.name} aria-label={`Télécharger ${file.name}`}><Download size={17}/></a>:<small>Fichier absent</small>;}
+function FileLink({file}){const url=useFile(file.deleting?null:file,true);if(file.deleting)return <small>Suppression ? terminer</small>;return url?<a className="icon-button" href={url} download={file.name} aria-label={`Télécharger ${file.name}`}><Download size={17}/></a>:<small>Fichier absent</small>;}
 function FilePreview({file,files}){const url=useFile(file);if(!url)return <p>Chargement du fichier?</p>;if(file.image)return <img className="ws-full-image" src={url} alt={file.name}/>;return <Suspense fallback={<p>Chargement du lecteur 3D?</p>}><ModelViewer file={{...file,url}} files={files.map(f=>f.id===file.id?{...f,url}:f)}/></Suspense>;}
 function Modal({title,onClose,children}){const ref=useRef();useEffect(()=>{ref.current.showModal();},[]);return <dialog ref={ref} className="ws-modal" onCancel={onClose}><header><h2>{title}</h2><button className="icon-button" aria-label="Fermer" onClick={onClose}><X size={20}/></button></header>{children}</dialog>;}
 export default function Workshop({cloud=null}){

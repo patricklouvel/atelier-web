@@ -127,6 +127,7 @@ begin
  select * into item from public.atelier_files where id=p_file_id and project_id=p_project_id for update;
  if not found then raise exception 'Fichier introuvable' using errcode='22023'; end if;
  if item.metadata->>'deleting'='true' then return; end if;
+ if item.state<>'ready' then raise exception 'Transfert en cours' using errcode='40001'; end if;
  if project.revision<>p_revision then raise exception 'Version concurrente' using errcode='40001'; end if;
  select * into presentation from public.atelier_presentations where project_id=p_project_id for update;
  if presentation.draft->>'modelId'=p_file_id::text or presentation.live->>'modelId'=p_file_id::text
