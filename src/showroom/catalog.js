@@ -13,7 +13,7 @@ import miellesBracelet from './assets/mielles-bracelet.webp';
 import miellesNecklace from './assets/mielles-necklace.webp';
 import miellesDrop from './assets/mielles-drop.webp';
 export const images={campaign,ring,estran,maree,galets,pendentif,blainville,cordon,landscape,horizonRing,horizonCuff,miellesBracelet,miellesNecklace,miellesDrop};
-export const brand={name:'Cœur de Mielles',joaillier:'JINORIA',signature:'par JINORIA'};
+export const brand={name:'Lune de Mielles',joaillier:'JINORIA',signature:'par JINORIA'};
 // Public editorial selection only. The complete research audit is internal in research/.
 // Optional per-product media (only files intended for public viewing):
 // gallery: [{src: '/images/bague-face.webp', alt: 'Bague de face', caption: 'De face'}, ...]

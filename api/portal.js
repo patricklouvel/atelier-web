@@ -10,7 +10,7 @@ function ownerKey(req,secret){const a=Buffer.from(req.headers.authorization||'')
 export function validate(body){
  const files=body.files;if(!Array.isArray(files)||files.length<1||files.length>60)throw fail('Choisir entre 1 et 60 fichiers');
  return {name:text(body.name,200),collection:text(body.collection||'',200),brief:text(body.brief||'',10000),clientBrief:text(body.clientBrief||'',10000),files:files.map((file,index)=>{
-  const name=text(file.name,250);if(!/\.(png|jpe?g|webp|fbx|blend|stl|obj|glb|gltf|step|stp|3dm|pdf|zip)$/i.test(name))throw fail('Format non accepté : '+name);
+  const name=text(file.name,250);if(!/\.(png|jpe?g|webp|fbx|blend|stl|3mf|obj|glb|gltf|step|stp|3dm|pdf|zip)$/i.test(name))throw fail('Format non accepté : '+name);
   if(!Number.isSafeInteger(file.size)||file.size<1||file.size>200*1024*1024)throw fail('Taille maximale : 200 Mo par fichier');
   const image=file.image===true;if(image&&!/\.(png|jpe?g|webp)$/i.test(name))throw fail('Image non prise en charge');
   const audience=file.audience||'team';if(!AUDIENCES.includes(audience))throw fail('Visibilité du fichier invalide');

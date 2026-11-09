@@ -24,7 +24,7 @@ function fixture(){
  async function invoke(handler,req){let status,result,headers={};await handler(req,{setHeader(k,v){headers[k]=v},status(value){status=value;return this},json(value){result=value},end(){}});return {status,result,headers};}
  const call=(member,method='GET',body={},query={})=>invoke(createWorkshopHandler(c,storage,async()=>member),{method,headers:{},query:{action:'presentation',projectId,...query},body});
  const read=(query={})=>invoke(createCatalogueHandler(c,storage),{method:'GET',query});
- const draft={...emptyPresentation({id:projectId,name:'Bague Test'}),description:'Présentation publique',gallery:[{fileId:photoId,editorial:'',alt:'Bague',caption:'De face'}],modelId};
+ const draft={...emptyPresentation({id:projectId,name:'Bague Test'}),category:'Bagues',description:'Présentation publique',gallery:[{fileId:photoId,editorial:'',alt:'Bague',caption:'De face'}],modelId};
  return {projectId,photoId,modelId,tables,draft,call,read,signed,events};
 }
 

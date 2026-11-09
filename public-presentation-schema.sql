@@ -21,6 +21,16 @@ returns jsonb language plpgsql set search_path=public,pg_temp as $$
 declare saved public.atelier_presentations;
 begin
  if p_command not in ('save','publish','unpublish') then raise exception 'Action invalide' using errcode='22023'; end if;
+ perform 1 from public.atelier_projects where id=p_project_id for update;
+ if p_command <> 'unpublish' and exists(
+  select 1 from (
+   select photo->>'fileId' as id from jsonb_array_elements(coalesce(p_draft->'gallery','[]'::jsonb)) photo
+   union select p_draft->>'modelId'
+  ) selected where coalesce(selected.id,'')<>'' and not exists(
+   select 1 from public.atelier_files f where f.project_id=p_project_id and f.id::text=selected.id and f.state='ready'
+  )
+ ) then raise exception 'Un fichier s?lectionn? a ?t? supprim?' using errcode='23503'; end if;
+
  if p_command <> 'unpublish' then
   insert into public.atelier_presentations(project_id,slug,draft)
    values(p_project_id,p_draft->>'slug',p_draft) on conflict(project_id) do nothing;

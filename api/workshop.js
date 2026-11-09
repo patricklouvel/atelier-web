@@ -4,6 +4,7 @@ import {serverSupabaseConfig} from '../lib/supabase-config.js';
 import {requireRole,AUDIENCES} from '../lib/access-policy.js';
 import {fail,uuid,text,assertRead,canReadFile,projectView,validateProject,uploadMetadata} from '../lib/workshop-policy.js';
 import {managePresentation} from '../lib/presentation-service.js';
+import {withoutFile} from '../src/workshop/file-removal.js';
 
 function checked(result){if(result.error)throw fail(result.error.code==='42P01'||result.error.code==='PGRST205'?'Atelier web à initialiser : exécutez setup.sql dans Supabase.':'Enregistrement indisponible. Réessayez.',503);return result.data;}
 export function createWorkshopHandler(c,storage,checkAccess=req=>authorize(req,c)){return async(req,res)=>{
@@ -85,9 +86,24 @@ export function createWorkshopHandler(c,storage,checkAccess=req=>authorize(req,c
    checked(await c.from('atelier_files').insert({id,project_id:row.id,metadata,storage_path:path,uploader:member.email}));
    const signed=checked(await storage.createSignedUploadUrl(path));return res.status(201).json({id,url:signed.signedUrl});
   }
-  if(['complete','file-url','cancel-upload'].includes(action)){
+  if(['complete','file-url','cancel-upload','delete-file'].includes(action)){
    const file=checked(await c.from('atelier_files').select('*').eq('id',uuid(body.id||req.query.id)).maybeSingle());if(!file)throw fail('Fichier introuvable.',404);
-   await getProject(file.project_id);
+   const project=await getProject(file.project_id);
+   if(action==='delete-file'&&req.method==='DELETE'){
+    requireRole(member,['admin']);
+    if(!Number.isSafeInteger(body.revision))throw fail('Révision manquante.');
+    const view=await one(project),clean=withoutFile(view,file.id);
+    const {cover,production}=clean;
+    const result=await c.rpc('atelier_prepare_file_deletion',{p_project_id:project.id,p_file_id:file.id,p_revision:body.revision,p_payload:{...project.payload,cover,production},p_actor:member.email});
+    if(result.error?.code==='23503')throw fail('Ce fichier est utilisé dans une présentation publique. Retirez-le du brouillon et de la version publiée avant de le supprimer.',409);
+    if(result.error?.code==='40001')throw fail('Cette pièce a changé. Enregistrez ou actualisez vos modifications avant de supprimer le fichier.',409);
+    if(['42883','PGRST202'].includes(result.error?.code))throw fail('Suppression à initialiser : exécutez file-deletion-schema.sql dans Supabase.',503);
+    checked(result);
+    checked(await storage.remove([file.storage_path]));
+    checked(await c.from('atelier_files').delete().eq('id',file.id));
+    return res.status(200).json({piece:await one(await getProject(project.id))});
+   }
+   if(file.metadata.deleting)throw fail('Suppression en cours. Réessayez la suppression depuis le compte administrateur.',409);
    if(action==='file-url'&&req.method==='GET'){
     if(!canReadFile(file,member))throw fail('Fichier non partagé.',403);
     const signed=checked(await storage.createSignedUrl(file.storage_path,60,req.query.download==='1'?{download:file.metadata.name}:{}));return res.status(200).json({url:signed.signedUrl});

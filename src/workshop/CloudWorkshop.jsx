@@ -42,12 +42,20 @@ export default function CloudWorkshop({session,member}){
    const result=await request('complete','POST',{id:reserved.id});completed=true;
    for(const setter of [setData,setBase])setter(state=>({...state,pieces:state.pieces.map(p=>p.id===piece.id?{...p,files:[...p.files.filter(f=>f.id!==result.file.id),result.file]}:p)}));transferred++;
   }catch(e){if(reserved&&!completed)await request('cancel-upload','POST',{id:reserved.id}).catch(()=>{});throw e;}}
-  setNotice(`${transferred} fichier(s) enregistré(s) en ligne.`);
-  }catch(e){setError(`${e.message}${transferred?` ${transferred} fichier(s) déjà transféré(s) ont été conservés.`:''}`);}finally{setBusy(false);}
+  setNotice(`${transferred} fichier(s) enregistré(s) en ligne.`);return true;
+  }catch(e){setError(`${e.message}${transferred?` ${transferred} fichier(s) déjà transféré(s) ont été conservés.`:''}`);return false;}finally{setBusy(false);}
  }
  async function comment(piece,text){setBusy(true);setError('');try{const {event}=await request('comment','POST',{projectId:piece.id,text});for(const setter of [setData,setBase])setter(state=>({...state,pieces:state.pieces.map(p=>p.id===piece.id?{...p,history:[event,...p.history]}:p)}));return true;}catch(e){setError(e.message);return false;}finally{setBusy(false);}}
+ async function removeFile(piece,file){
+  if(member.role!=='admin')throw Error('Suppression réservée à l’administrateur.');
+  const before=baseline.current.pieces.find(p=>p.id===piece.id);
+  if(!before||JSON.stringify(strip(before))!==JSON.stringify(strip(piece)))throw Error('Enregistrez les modifications de cette pièce avant de supprimer un fichier.');
+  setBusy(true);setError('');setNotice('');
+  try{const result=await request('delete-file','DELETE',{id:file.id,revision:piece.revision});replacePiece(result.piece);setNotice('Fichier supprimé : '+file.name);}
+  finally{setBusy(false);}
+ }
  const resolveFile=useCallback(async(id,download=false)=>(await request('file-url','GET',null,'&id='+encodeURIComponent(id)+(download?'&download=1':''))).url,[request]);
  const presentation=useCallback((id,method='GET',body)=>request('presentation',method,body,'&projectId='+encodeURIComponent(id)),[request]);
  if(!data)return <main className="professional-error"><h1>Atelier en ligne</h1>{error?<><p className="notice error" role="alert">{error}</p><button className="button" disabled={busy} onClick={load}>Réessayer</button></>:<p role="status">Chargement de vos collections et projets…</p>}</main>;
- return <RemoteFiles.Provider value={resolveFile}><div className="cloud-toolbar"><span role="status">{busy?'Enregistrement en cours…':dirty?'Modifications à enregistrer':'Enregistré en ligne'}</span><div><button className="button" disabled={busy} onClick={()=>dirty?setDiscard(true):load()}>Actualiser</button>{member.role!=='guest'&&<button className="button primary" disabled={busy||!dirty} onClick={save}>Enregistrer les modifications</button>}</div>{discard&&<p>Des modifications ne sont pas enregistrées. <button className="text-button" onClick={load}>Abandonner et actualiser</button> <button className="text-button" onClick={()=>setDiscard(false)}>Annuler</button></p>}{error&&<p className="notice error" role="alert">{error}</p>}{notice&&!error&&<p className="cloud-notice">{notice}</p>}</div><fieldset className="cloud-content" disabled={busy}><Workshop cloud={{data,member,onChange:setData,create,upload,comment,presentation,busy}}/></fieldset></RemoteFiles.Provider>;
+ return <RemoteFiles.Provider value={resolveFile}><div className="cloud-toolbar"><span role="status">{busy?'Enregistrement en cours…':dirty?'Modifications à enregistrer':'Enregistré en ligne'}</span><div><button className="button" disabled={busy} onClick={()=>dirty?setDiscard(true):load()}>Actualiser</button>{member.role!=='guest'&&<button className="button primary" disabled={busy||!dirty} onClick={save}>Enregistrer les modifications</button>}</div>{discard&&<p>Des modifications ne sont pas enregistrées. <button className="text-button" onClick={load}>Abandonner et actualiser</button> <button className="text-button" onClick={()=>setDiscard(false)}>Annuler</button></p>}{error&&<p className="notice error" role="alert">{error}</p>}{notice&&!error&&<p className="cloud-notice">{notice}</p>}</div><fieldset className="cloud-content" disabled={busy}><Workshop cloud={{data,member,onChange:setData,create,upload,removeFile,comment,presentation,busy}}/></fieldset></RemoteFiles.Provider>;
 }

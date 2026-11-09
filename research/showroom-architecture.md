@@ -1,8 +1,8 @@
-# Vitrine Cœur de Mielles
+# Vitrine Lune de Mielles
 
 ## Identité et contenu
 
-Cœur de Mielles est un atelier de design et fait partie de l’univers JINORIA. La relation se présente comme une appartenance à cet univers, sans discours de sous-traitance ni argument de fabrication. La signature publique est « par JINORIA ». Le site JINORIA présente ses propres créations, le sur-mesure et les pierres.
+Lune de Mielles est un atelier de design et fait partie de l’univers JINORIA. La relation se présente comme une appartenance à cet univers, sans discours de sous-traitance ni argument de fabrication. La signature publique est « par JINORIA ». Le site JINORIA présente ses propres créations, le sur-mesure et les pierres.
 
 Le classement repose sur les formes : Rivages (vagues et entrelacs), Galets (volumes arrondis), Horizon (structures géométriques), Mielles (reliefs et strates). Le type de bijou constitue un second axe indépendant.
 

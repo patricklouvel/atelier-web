@@ -1,15 +1,15 @@
-# Cœur de Mielles — classement préparatoire
+# Lune de Mielles — classement préparatoire
 
 Revue visuelle du dossier `MoodBoard_Collection_Rivage`, le 6 novembre 2026. L’inventaire détaillé est dans `collection-classification.json` : 96 images examinées, dont 7 doublons binaires. Ce ne sont donc pas 96 modèles de bijoux distincts. Aucun original n’a été déplacé, renommé ou modifié.
 
 ## Architecture de marque
 
 - **JINORIA** : identité joaillière, savoir-faire, développement et réalisation ; possède son propre site pour ses créations, le sur-mesure et les pierres.
-- **Cœur de Mielles** : marque de collections et univers créatif, présentée avec la signature « par JINORIA ».
+- **Lune de Mielles** : marque de collections et univers créatif, présentée avec la signature « par JINORIA ».
 - **Rivages / Galets / Horizon / Mielles** : collections de la marque.
 - **Bagues / Bracelets / Colliers & pendentifs / Boucles d’oreilles** : types indépendants des collections.
 
-Le site se présente au nom de Cœur de Mielles, signé « par JINORIA ». La relation est joaillière et créative, exprimée par la signature, une courte présentation et un lien vers le site propre de JINORIA. Les formulations « groupe parent » et « une marque de JINORIA » ne sont plus utilisées sur la vitrine.
+Le site se présente au nom de Lune de Mielles, signé « par JINORIA ». La relation est joaillière et créative, exprimée par la signature, une courte présentation et un lien vers le site propre de JINORIA. Les formulations « groupe parent » et « une marque de JINORIA » ne sont plus utilisées sur la vitrine.
 
 ## Critères proposés
 

@@ -21,6 +21,19 @@ test('online workshop creates collections and projects without any desktop manif
  assert.equal(result.status,201);assert.equal(result.result.piece.name,'Bague Dune');assert.equal((await f.call(admin,'index')).result.pieces.length,2);
  assert.equal((await f.call(team,'project','POST',{id:randomUUID(),name:'Illegal',collection:id,status:'Recherche'})).status,403);
 });
+test('online workshop transfers STL, Blender and 3MF attachments and keeps them private',async()=>{
+ const f=fixture();
+ for(const name of ['piece.stl','source.blend','impression.3mf']){
+  const upload=await f.call(admin,'upload','POST',{projectId:f.id,name,size:120});assert.equal(upload.status,201);
+  const file=f.tables.atelier_files.find(row=>row.id===upload.result.id);f.blobs.set(file.storage_path,120);
+  assert.equal((await f.call(admin,'complete','POST',{id:file.id})).status,200);
+  assert.equal(file.metadata.audience,'private');
+ }
+ const visible=(await f.call(admin,'index')).result.pieces[0].files;
+ assert.deepEqual(visible.map(file=>file.name).sort(),['impression.3mf','piece.stl','source.blend']);
+ assert.equal((await f.call(guest,'index')).result.pieces[0].files.length,0);
+});
+
 test('server scopes projects, collections, notes, production and history by authenticated role',async()=>{
  const f=fixture();f.tables.atelier_events.push({id:randomUUID(),project_id:f.id,author:admin.email,text:'Internal'});
  const v=(await f.call(guest,'index')).result;assert.equal(v.pieces.length,1);assert.equal(v.pieces[0].clientText,'Texte client');assert(!JSON.stringify(v).includes('Note privée'));assert(!JSON.stringify(v).includes('Consigne interne'));assert(!JSON.stringify(v).includes('Internal'));assert(!('production' in v.pieces[0]));assert.equal(v.people.length,0);

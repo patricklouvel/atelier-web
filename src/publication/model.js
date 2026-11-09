@@ -1,3 +1,4 @@
+import {JEWELRY_TYPES,jewelryTypeOf} from '../workshop/jewelry-types.js';
 export const publicCollections=['rivages','galets','horizon','mielles'];
 export const publicCategories=['Bagues','Bracelets','Colliers & pendentifs','Boucles d’oreilles'];
 // Public reference IDs only; server validation must not import bundled image files.
@@ -33,7 +34,7 @@ export function publicationSnapshot(draft,files) {
 }
 export function emptyPresentation(piece,source=null,collection='rivages') {
  const slug=source?.id||slugify(piece.name)||`creation-${piece.id.slice(0,8)}`;
- return {slug,name:source?.name||piece.name,universe:source?.universe||collection,category:source?.category||'Bagues',subtitle:source?.subtitle||'',description:source?.description||piece.clientText||'',materials:source?.materials||'',finish:source?.finish||'',inspiration:source?.inspiration||'',sourceSlug:source?.id||'',modelId:'',gallery:source?[{fileId:'',editorial:'image',alt:source.name,caption:'Le bijou'},...(source.detail&&source.detail!==source.image?[{fileId:'',editorial:'detail',alt:`Univers de ${source.name}`,caption:'L’univers de la collection'}]:[])]:[]};
+ return {slug,name:source?.name||piece.name,universe:source?.universe||collection,category:source?.category||JEWELRY_TYPES.find(t=>t.id===jewelryTypeOf(piece))?.category||'',subtitle:source?.subtitle||'',description:source?.description||piece.clientText||'',materials:source?.materials||'',finish:source?.finish||'',inspiration:source?.inspiration||'',sourceSlug:source?.id||'',modelId:'',gallery:source?[{fileId:'',editorial:'image',alt:source.name,caption:'Le bijou'},...(source.detail&&source.detail!==source.image?[{fileId:'',editorial:'detail',alt:`Univers de ${source.name}`,caption:'L’univers de la collection'}]:[])]:[]};
 }
 export function publicPresentation(row) {
  if(!row.live)return null;

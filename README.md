@@ -1,4 +1,4 @@
-# Atelier web · Cœur de Mielles
+# Atelier web · Lune de Mielles
 
 Le même projet contient le site vitrine public et l’atelier privé, accessible sur **/atelier**. L’atelier s’utilise directement dans le navigateur. L’application Rust et les exports locaux ne sont plus nécessaires pour créer et suivre les pièces.
 
@@ -64,7 +64,7 @@ Les anciennes API /api/portal et /api/access?action=project sont conservées pou
 
 ## Vitrine publique
 
-Cœur de Mielles, par JINORIA. Collections : Rivages, Galets, Horizon, Mielles ; types de bijoux indépendants des collections. Les fiches publiques se gèrent depuis l’onglet **Présentation publique** de chaque pièce, réservé aux administrateurs. La création d’une pièce ou l’enregistrement d’un brouillon ne publient rien automatiquement. La sélection client reste locale au visiteur. Le contact prépare un message ; l’envoi par messagerie nécessite VITE_CONTACT_EMAIL. Site JINORIA : https://jinoria.com/ (surcharge VITE_JINORIA_URL). Voir research/showroom-architecture.md.
+Lune de Mielles, par JINORIA. Collections : Rivages, Galets, Horizon, Mielles ; types de bijoux indépendants des collections. Les fiches publiques se gèrent depuis l’onglet **Présentation publique** de chaque pièce, réservé aux administrateurs. La création d’une pièce ou l’enregistrement d’un brouillon ne publient rien automatiquement. La sélection client reste locale au visiteur. Le contact prépare un message ; l’envoi par messagerie nécessite VITE_CONTACT_EMAIL. Site JINORIA : https://jinoria.com/ (surcharge VITE_JINORIA_URL). Voir research/showroom-architecture.md.
 
 ### Éditer et publier depuis l’atelier
 

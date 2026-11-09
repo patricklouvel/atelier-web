@@ -2,9 +2,9 @@
 export const OPERATION_NAMES=['CAO','Impression résine / cire','Arbre de fonte','Fonte','Ébarbage','Soudure','Mise en taille','Sertissage','Polissage','Rhodiage / traitement','Contrôle final'];
 export const CONTROL_NAMES=['Dimensions et taille','Épaisseurs et cotes critiques','Solidité des griffes / sertissage','État de surface et finitions','Poids final','Poinçonnage'];
 export function productionDefaults(){return {
- header:{client:'',date:'',revision:'A',quantity:'1'},
+ header:{client:'',date:'',revision:'A',quantity:'1',jewelryType:''},
  metal:{type:'',fineness:'',alloy:'',color:'',theoreticalWeight:'',actualWeight:'',supplier:'',lot:''},
- dimensions:{ringSize:'',innerDiameter:'',length:'',width:'',thickness:'',tolerance:'',critical:''},
+ dimensions:{ringSize:'',innerDiameter:'',length:'',width:'',thickness:'',tolerance:'',critical:'',circumference:'',opening:'',fastening:'',extension:'',height:'',bailOpening:'',postLength:'',postDiameter:'',pairing:''},
  components:[],stones:[],finishes:[],
  instructions:'',modelApprovedBy:'',modelApprovedAt:'',
  casting:{fileId:'',fileVersion:'',treeIntegrated:false,approvedBy:'',approvedAt:''},
