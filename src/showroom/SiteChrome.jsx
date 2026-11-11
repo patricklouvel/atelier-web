@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRight, ArrowUpRight, Heart, Menu, Search, X } from 'lucide-react';
 import { Link, JinoriaLink } from './navigation';
+import BrandLogo from './BrandLogo';
 
 const navItems = [
   { to: '/collections', label: 'Collections', matches: ['/collections', '/coeur-de-mielles', '/coeur-des-mielles'] },
@@ -15,7 +16,7 @@ export function SiteHeader({ path, go, menu, setMenu, openSearch, savedCount, re
         {menu ? <X size={21}/> : <Menu size={21}/>}
       </button>
       <Link to="/" go={go} className="sr-wordmark" aria-label="Lune de Mielles — Accueil">
-        <span className="sr-brand-name">Lune de Mielles</span>
+        <BrandLogo priority/>
         <span className="sr-brand-signature"><em>par</em> JINORIA</span>
       </Link>
       <div className="sr-header-tools">
@@ -36,7 +37,7 @@ export function SiteFooter({ go, request }) {
   return <footer className="sr-footer">
     <div className="sr-footer-main">
       <div className="sr-footer-identity">
-        <Link to="/" go={go} className="sr-footer-wordmark">Lune de Mielles</Link>
+        <Link to="/" go={go} className="sr-footer-wordmark" aria-label="Lune de Mielles — Accueil"><BrandLogo/></Link>
         <span className="sr-jinoria-signature"><em>par</em> JINORIA</span>
         <p>Installé sur la côte ouest du Cotentin, l’atelier Lune de Mielles puise son inspiration dans les paysages du littoral : les courbes des dunes, le mouvement des vagues et la lumière sur la mer.</p>
       </div>
